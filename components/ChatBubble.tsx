@@ -12,20 +12,19 @@ interface ChatBubbleProps {
 export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote }) => {
   const isUser = message.role === 'user';
 
-  // Custom markdown styles that match our app's design
   const markdownStyles = {
     body: {
       fontSize: 16,
-      lineHeight: 22,
+      lineHeight: 24,
       color: isUser ? '#FFFFFF' : '#1F2937',
       margin: 0,
       padding: 0,
     },
     paragraph: {
       fontSize: 16,
-      lineHeight: 22,
+      lineHeight: 24,
       color: isUser ? '#FFFFFF' : '#1F2937',
-      marginBottom: 8,
+      marginBottom: 12,
       marginTop: 0,
     },
     strong: {
@@ -39,39 +38,39 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote })
     code_inline: {
       backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
       color: isUser ? '#FFFFFF' : '#1F2937',
-      padding: 2,
-      borderRadius: 4,
+      padding: 4,
+      borderRadius: 6,
       fontFamily: 'monospace',
       fontSize: 14,
     },
     code_block: {
       backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
       color: isUser ? '#FFFFFF' : '#1F2937',
-      padding: 12,
+      padding: 16,
       borderRadius: 8,
       fontFamily: 'monospace',
       fontSize: 14,
-      marginVertical: 8,
+      marginVertical: 12,
     },
     blockquote: {
       backgroundColor: isUser ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
       borderLeftWidth: 4,
       borderLeftColor: isUser ? 'rgba(255,255,255,0.5)' : '#3B82F6',
-      paddingLeft: 12,
-      marginVertical: 8,
+      paddingLeft: 16,
+      marginVertical: 12,
       fontStyle: 'italic',
     },
     list_item: {
       fontSize: 16,
-      lineHeight: 22,
+      lineHeight: 24,
       color: isUser ? '#FFFFFF' : '#1F2937',
-      marginBottom: 4,
+      marginBottom: 8,
     },
     bullet_list: {
-      marginBottom: 8,
+      marginBottom: 12,
     },
     ordered_list: {
-      marginBottom: 8,
+      marginBottom: 12,
     },
     link: {
       color: isUser ? '#93C5FD' : '#3B82F6',
@@ -81,27 +80,27 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote })
       fontSize: 24,
       fontWeight: '700',
       color: isUser ? '#FFFFFF' : '#1F2937',
-      marginBottom: 8,
-      marginTop: 8,
+      marginBottom: 12,
+      marginTop: 12,
     },
     heading2: {
       fontSize: 20,
       fontWeight: '600',
       color: isUser ? '#FFFFFF' : '#1F2937',
-      marginBottom: 6,
-      marginTop: 6,
+      marginBottom: 8,
+      marginTop: 8,
     },
     heading3: {
       fontSize: 18,
       fontWeight: '600',
       color: isUser ? '#FFFFFF' : '#1F2937',
-      marginBottom: 4,
-      marginTop: 4,
+      marginBottom: 6,
+      marginTop: 6,
     },
     table: {
       borderWidth: 1,
       borderColor: isUser ? 'rgba(255,255,255,0.3)' : '#E5E7EB',
-      marginVertical: 8,
+      marginVertical: 12,
     },
     table_header: {
       backgroundColor: isUser ? 'rgba(255,255,255,0.1)' : '#F3F4F6',
@@ -114,20 +113,19 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote })
     },
   };
 
-  // Styles for extracted notes
   const extractedNotesStyles = {
     body: {
       fontSize: 14,
-      lineHeight: 18,
+      lineHeight: 20,
       color: isUser ? '#E5E7EB' : '#4B5563',
       margin: 0,
       padding: 0,
     },
     paragraph: {
       fontSize: 14,
-      lineHeight: 18,
+      lineHeight: 20,
       color: isUser ? '#E5E7EB' : '#4B5563',
-      marginBottom: 4,
+      marginBottom: 8,
       marginTop: 0,
     },
     strong: {
@@ -141,8 +139,8 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote })
     code_inline: {
       backgroundColor: isUser ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.05)',
       color: isUser ? '#E5E7EB' : '#4B5563',
-      padding: 2,
-      borderRadius: 4,
+      padding: 4,
+      borderRadius: 6,
       fontFamily: 'monospace',
       fontSize: 12,
     },
@@ -239,8 +237,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bubble: {
-    padding: 12,
-    borderRadius: 18,
+    padding: 16,
+    borderRadius: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -258,8 +256,8 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 4,
   },
   extractedNotesSection: {
-    marginTop: 12,
-    paddingTop: 12,
+    marginTop: 16,
+    paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
   },
@@ -267,22 +265,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#374151',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   extractedNoteItem: {
-    marginBottom: 4,
+    marginBottom: 8,
   },
   saveButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 6,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    marginTop: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 16,
+    alignSelf: 'flex-start',
   },
   saveButtonText: {
     fontSize: 12,
     color: '#6B7280',
-    marginLeft: 4,
+    marginLeft: 6,
   },
   timestamp: {
     fontSize: 11,
