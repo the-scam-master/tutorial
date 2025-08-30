@@ -11,7 +11,7 @@ export const useChat = () => {
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const isMounted = useRef(true);
   const streamingMessageId = useRef<string | null>(null);
-  const messagesRef = useRef<Message[]>([]); // Add ref to track current messages
+  const messagesRef = useRef<Message[]>([]);
 
   useEffect(() => {
     isMounted.current = true;
@@ -23,7 +23,6 @@ export const useChat = () => {
     };
   }, []);
 
-  // Update messages ref whenever state changes
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
@@ -131,9 +130,8 @@ export const useChat = () => {
         conversationHistory.map(m => ({ role: m.role, content: m.content })),
         quickAction,
         (streamText) => {
-          fullResponse = streamText; // Keep track of the full response
+          fullResponse = streamText;
           if (isMounted.current && streamingMessageId.current === aiMessageId) {
-            // Update the message content as it streams in
             const updatedMessages = messagesRef.current.map(msg => 
               msg.id === aiMessageId ? { ...msg, content: streamText } : msg
             );
@@ -143,10 +141,11 @@ export const useChat = () => {
         }
       );
       
-      // Extract key points using the specialized AI model
+      // Extract key points immediately after response
       let keyPoints: string[] = [];
       try {
         keyPoints = await AIService.extractKeyPoints(fullResponse);
+        console.log('Extracted key points:', keyPoints);
       } catch (error) {
         console.error('Error extracting key points:', error);
         keyPoints = [];
@@ -162,7 +161,7 @@ export const useChat = () => {
         setMessages(finalMessages);
         messagesRef.current = finalMessages;
         
-        // Save to storage
+        // Save to storage immediately
         await StorageService.saveMessages(finalMessages);
       }
       
@@ -206,27 +205,27 @@ export const useChat = () => {
   const saveMessageAsNote = async (messageId: string) => {
     try {
       const message = messagesRef.current.find(m => m.id === messageId);
-      if (!message) return;
+      if (!message || !message.extractedNotes || message.extractedNotes.length === 0) return;
       
-      // Save each extracted note individually
-      if (message.extractedNotes && message.extractedNotes.length > 0) {
-        const topic = AIService.extractTopic(message.content);
-        for (const note of message.extractedNotes) {
-          const noteData = {
-            id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-            content: note,
-            topic,
-            timestamp: new Date().toISOString(),
-            source: 'auto',
-            chatMessageId: messageId,
-          };
-          
-          // Save to AsyncStorage
-          const notes = await StorageService.getNotes();
-          notes.push(noteData);
-          await StorageService.saveNotes(notes);
-        }
-      }
+      // Create a single note with all key points
+      const topic = AIService.extractTopic(message.content);
+      const noteContent = message.extractedNotes.map((note, index) => `${index + 1}. ${note}`).join('\n\n');
+      
+      const noteData = {
+        id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        content: noteContent,
+        topic,
+        timestamp: new Date().toISOString(),
+        source: 'auto',
+        chatMessageId: messageId,
+      };
+      
+      // Save to AsyncStorage
+      const notes = await StorageService.getNotes();
+      notes.push(noteData);
+      await StorageService.saveNotes(notes);
+      
+      console.log('Saved note:', noteData);
     } catch (error) {
       console.error('Error saving message as note:', error);
     }
