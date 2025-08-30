@@ -10,6 +10,7 @@ export const useChat = () => {
   const [apiKeySet, setApiKeySet] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const isMounted = useRef(true);
+  const streamingMessageId = useRef<string | null>(null);
 
   useEffect(() => {
     isMounted.current = true;
@@ -98,6 +99,8 @@ export const useChat = () => {
       
       // Create a placeholder AI message for streaming
       const aiMessageId = (Date.now() + 1).toString();
+      streamingMessageId.current = aiMessageId; // Track the streaming message
+      
       const aiMessage: Message = {
         id: aiMessageId,
         content: '',
@@ -120,7 +123,7 @@ export const useChat = () => {
         quickAction,
         (streamText) => {
           // Update the message content as it streams in
-          if (isMounted.current) {
+          if (isMounted.current && streamingMessageId.current === aiMessageId) {
             setMessages(prev => prev.map(msg => 
               msg.id === aiMessageId ? { ...msg, content: streamText } : msg
             ));
@@ -128,25 +131,32 @@ export const useChat = () => {
         }
       );
       
-      // Get the final response
-      fullResponse = messagesWithPlaceholder[messagesWithPlaceholder.length - 1].content;
+      // Get the final response from the current state to ensure we have the latest
+      const currentMessages = isMounted.current ? messages : messagesWithPlaceholder;
+      const lastMessage = currentMessages[currentMessages.length - 1];
+      fullResponse = lastMessage?.content || '';
       
       // Extract key points
       const keyPoints = AIService.extractKeyPoints(fullResponse);
       
       // Update the AI message with extracted notes
       const finalAiMessage: Message = {
-        ...aiMessage,
+        id: aiMessageId,
         content: fullResponse,
+        role: 'assistant',
+        timestamp: new Date(),
         extractedNotes: keyPoints,
       };
       
-      // Update messages
+      // Update messages with the final message including extracted notes
       const finalMessages = [...newMessages, finalAiMessage];
       if (isMounted.current) {
         setMessages(finalMessages);
         await StorageService.saveMessages(finalMessages);
       }
+      
+      // Clear the streaming message ID
+      streamingMessageId.current = null;
       
       // Update session analytics
       const session = await StorageService.getCurrentSession();
@@ -160,6 +170,9 @@ export const useChat = () => {
     } catch (error) {
       console.error('Error sending message:', error);
       if (!isMounted.current) return;
+      
+      // Clear the streaming message ID
+      streamingMessageId.current = null;
       
       // Add error message
       const errorMessage: Message = {
