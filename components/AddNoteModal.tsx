@@ -59,7 +59,6 @@ export const AddNoteModal: React.FC<AddNoteModalProps> = ({
             <Plus size={20} color={(!content.trim() || !topic.trim()) ? '#9CA3AF' : '#3B82F6'} />
           </TouchableOpacity>
         </View>
-
         <View style={styles.form}>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Topic</Text>
@@ -71,7 +70,6 @@ export const AddNoteModal: React.FC<AddNoteModalProps> = ({
               placeholderTextColor="#9CA3AF"
             />
           </View>
-
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Content</Text>
             <TextInput
