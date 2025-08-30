@@ -68,16 +68,17 @@ export const useChat = () => {
       }
     } catch (error) {
       console.error('Error setting API key:', error);
+      throw error;
     }
   };
 
   const sendMessage = useCallback(async (content: string, quickAction?: string) => {
     if (!content.trim() || !isMounted.current) return;
-
     if (!apiKeySet) {
+      setShowApiKeyModal(true);
       return;
     }
-
+    
     setLoading(true);
     
     try {
@@ -88,22 +89,22 @@ export const useChat = () => {
         role: 'user',
         timestamp: new Date(),
       };
-
+      
       // Add user message immediately
       const newMessages = [...messages, userMessage];
       if (isMounted.current) {
         setMessages(newMessages);
       }
-
+      
       // Generate AI response
       const conversationHistory = newMessages.slice(-10); // Last 10 messages for context
       const aiResponse = await AIService.generateResponse(
         conversationHistory.map(m => ({ role: m.role, content: m.content })),
         quickAction
       );
-
+      
       if (!isMounted.current) return;
-
+      
       // Create AI message
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -111,34 +112,14 @@ export const useChat = () => {
         role: 'assistant',
         timestamp: new Date(),
       };
-
-      // Extract notes from AI response
-      const extractedPoints = AIService.extractKeyPoints(aiResponse);
-      if (extractedPoints.length > 0) {
-        aiMessage.extractedNotes = extractedPoints;
-        
-        // Auto-save as notes
-        const topic = AIService.extractTopic(content);
-        for (const point of extractedPoints) {
-          const note: Note = {
-            id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-            content: point,
-            topic,
-            timestamp: new Date(),
-            source: 'auto',
-            chatMessageId: aiMessage.id,
-          };
-          await StorageService.addNote(note);
-        }
-      }
-
+      
       // Update messages
       const finalMessages = [...newMessages, aiMessage];
       if (isMounted.current) {
         setMessages(finalMessages);
         await StorageService.saveMessages(finalMessages);
       }
-
+      
       // Update session analytics
       const session = await StorageService.getCurrentSession();
       if (session) {
@@ -148,7 +129,6 @@ export const useChat = () => {
           session.topics.push(topic);
         }
       }
-
     } catch (error) {
       console.error('Error sending message:', error);
       if (!isMounted.current) return;
@@ -167,26 +147,6 @@ export const useChat = () => {
       }
     }
   }, [messages, apiKeySet]);
-
-  const saveMessageAsNote = async (messageId: string) => {
-    try {
-      const message = messages.find(m => m.id === messageId);
-      if (!message) return;
-
-      const note: Note = {
-        id: `note-${Date.now()}`,
-        content: message.content,
-        topic: AIService.extractTopic(message.content),
-        timestamp: new Date(),
-        source: 'manual',
-        chatMessageId: messageId,
-      };
-
-      await StorageService.addNote(note);
-    } catch (error) {
-      console.error('Error saving message as note:', error);
-    }
-  };
 
   const clearChat = async () => {
     try {
@@ -220,9 +180,10 @@ export const useChat = () => {
     loading,
     apiKeySet,
     sendMessage,
-    saveMessageAsNote,
     clearChat,
     startNewSession,
     setApiKey,
+    showApiKeyModal,
+    setShowApiKeyModal,
   };
 };
