@@ -144,7 +144,6 @@ export class StorageService {
       };
       
       if (!data) {
-        // Initialize with default analytics if none exist
         await this.updateAnalytics(defaultAnalytics);
         return defaultAnalytics;
       }
@@ -167,7 +166,6 @@ export class StorageService {
       const current = await this.getAnalytics();
       const updated = { ...current, ...updates };
       await AsyncStorage.setItem(KEYS.ANALYTICS, JSON.stringify(updated));
-      console.log('Updated analytics:', updated); // Debug log
     } catch (error) {
       console.error('Error updating analytics:', error);
     }
@@ -193,7 +191,6 @@ export class StorageService {
         topics: [],
       };
       await AsyncStorage.setItem(KEYS.CURRENT_SESSION, JSON.stringify(session));
-      console.log('Started new session:', session); // Debug log
       return session;
     } catch (error) {
       console.error('Error starting session:', error);
@@ -217,7 +214,6 @@ export class StorageService {
         
         // Update analytics
         await this.updateSessionAnalytics(session);
-        console.log('Ended session:', session); // Debug log
       }
     } catch (error) {
       console.error('Error ending session:', error);
@@ -254,7 +250,6 @@ export class StorageService {
       analytics.streakDays = this.calculateStreak(analytics.dailyActivity);
       
       await this.updateAnalytics(analytics);
-      console.log('Updated session analytics:', analytics); // Debug log
     } catch (error) {
       console.error('Error updating session analytics:', error);
     }
@@ -264,7 +259,8 @@ export class StorageService {
     const today = new Date();
     let streak = 0;
     
-    for (let i = 0; i < 365; i++) {
+    // Only check the last 30 days to improve performance
+    for (let i = 0; i < 30; i++) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       const dateKey = date.toISOString().split('T')[0];
