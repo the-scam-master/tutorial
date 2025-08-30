@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 import { Message } from '@/types';
@@ -8,7 +8,7 @@ interface ChatBubbleProps {
   message: Message;
 }
 
-export const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
+const ChatBubble = memo(({ message }: ChatBubbleProps) => {
   const isUser = message.role === 'user';
 
   const markdownStyles = {
@@ -54,7 +54,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
     blockquote: {
       backgroundColor: isUser ? 'rgba(255,255,255,0.1)' : '#F9FAFB',
       borderLeftWidth: 4,
-      borderLeftColor: isUser ? 'rgba(255,255,255,0.5)' : '#3B82F6',
+      borderLeftColor: isUser ? 'rgba(255,255,255,0.5)' : '#6366F1',
       paddingLeft: 16,
       marginVertical: 12,
       fontStyle: 'italic',
@@ -72,7 +72,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
       marginBottom: 12,
     },
     link: {
-      color: isUser ? '#93C5FD' : '#3B82F6',
+      color: isUser ? '#93C5FD' : '#6366F1',
       textDecorationLine: 'underline',
     },
     heading1: {
@@ -142,7 +142,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
       </Text>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -205,3 +205,5 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
 });
+
+export default ChatBubble;
