@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Message, Note } from '@/types';
+import { Message } from '@/types';
 import { StorageService } from '@/services/storage';
 import { AIService } from '@/services/ai';
 
@@ -8,6 +8,7 @@ export const useChat = () => {
   const [loading, setLoading] = useState(false);
   const [currentSession, setCurrentSession] = useState(null);
   const [apiKeySet, setApiKeySet] = useState(false);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const isMounted = useRef(true);
 
   useEffect(() => {
@@ -15,7 +16,6 @@ export const useChat = () => {
     loadMessages();
     initializeSession();
     checkApiKey();
-
     return () => {
       isMounted.current = false;
     };
@@ -26,6 +26,9 @@ export const useChat = () => {
       const apiKey = await StorageService.getApiKey();
       if (isMounted.current) {
         setApiKeySet(!!apiKey);
+        if (!apiKey) {
+          setShowApiKeyModal(true);
+        }
       }
     } catch (error) {
       console.error('Error checking API key:', error);
