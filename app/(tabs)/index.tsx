@@ -6,7 +6,6 @@ import { ChatInput } from '@/components/ChatInput';
 import { QuickActionButtons } from '@/components/QuickActionButtons';
 import { ApiKeyModal } from '@/components/ApiKeyModal';
 import { MessageCircle, RotateCcw, Settings } from 'lucide-react-native';
-import { Message } from '@/types';
 
 export default function ChatScreen() {
   const { 
@@ -14,13 +13,13 @@ export default function ChatScreen() {
     loading, 
     apiKeySet, 
     sendMessage, 
-    saveMessageAsNote, 
     clearChat, 
     startNewSession,
-    setApiKey 
+    setApiKey,
+    showApiKeyModal,
+    setShowApiKeyModal
   } = useChat();
   const flatListRef = useRef<FlatList>(null);
-  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
 
   useEffect(() => {
     // Show API key modal if not set
@@ -45,15 +44,17 @@ export default function ChatScreen() {
     }
   };
 
-  const handleApiKeySave = (apiKey: string) => {
-    setApiKey(apiKey);
+  const handleApiKeySave = async (apiKey: string) => {
+    try {
+      await setApiKey(apiKey);
+      setShowApiKeyModal(false);
+    } catch (error) {
+      console.error('Failed to save API key:', error);
+    }
   };
 
-  const renderMessage = ({ item }: { item: Message }) => (
-    <ChatBubble 
-      message={item} 
-      onSaveAsNote={saveMessageAsNote}
-    />
+  const renderMessage = ({ item }) => (
+    <ChatBubble message={item} />
   );
 
   const EmptyState = () => (
@@ -61,7 +62,7 @@ export default function ChatScreen() {
       <MessageCircle size={64} color="#9CA3AF" />
       <Text style={styles.emptyTitle}>Welcome to AI Tutor!</Text>
       <Text style={styles.emptySubtitle}>
-        Ask me anything you'd like to learn about. I'll help you understand complex topics and automatically save important notes.
+        Ask me anything you'd like to learn about. I'll help you understand complex topics.
       </Text>
       {!apiKeySet && (
         <TouchableOpacity 
@@ -93,7 +94,6 @@ export default function ChatScreen() {
           )}
         </View>
       </View>
-
       <FlatList
         ref={flatListRef}
         data={messages}
@@ -104,13 +104,10 @@ export default function ChatScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={messages.length === 0 ? styles.emptyListContent : styles.listContent}
       />
-
       {messages.length > 0 && messages[messages.length - 1]?.role === 'user' && (
         <QuickActionButtons onAction={handleQuickAction} disabled={loading} />
       )}
-
       <ChatInput onSend={sendMessage} disabled={loading || !apiKeySet} />
-
       <ApiKeyModal
         visible={showApiKeyModal}
         onClose={() => setShowApiKeyModal(false)}
@@ -118,7 +115,7 @@ export default function ChatScreen() {
       />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
