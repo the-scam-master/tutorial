@@ -13,7 +13,7 @@ import {
 import { useNotes } from '@/hooks/useNotes';
 import { NoteCard } from '@/components/NoteCard';
 import { AddNoteModal } from '@/components/AddNoteModal';
-import { BookOpen, Plus, Search, LayoutList, Grid } from 'lucide-react-native';
+import { BookOpen, Plus, LayoutList, Grid } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -35,7 +35,7 @@ export default function NotesScreen() {
       </View>
       <Text style={styles.emptyTitle}>No Notes Yet</Text>
       <Text style={styles.emptySubtitle}>
-        Start chatting with the AI tutor to automatically collect notes, or add your own manually.
+        Create your own notes to keep track of important information.
       </Text>
       <TouchableOpacity 
         style={styles.emptyButton}
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   addButton: {
     padding: 8,
     borderRadius: 8,
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#6366F1',
   },
   notesList: {
     flex: 1,
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   emptyButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#6366F1',
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderRadius: 12,
