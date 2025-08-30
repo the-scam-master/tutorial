@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { MessageCircle, BookOpen, ChartBar as BarChart3 } from 'lucide-react-native';
+import { MessageCircle, ChartBar as BarChart3 } from 'lucide-react-native';
 import { Platform } from 'react-native';
 
 export default function TabLayout() {
@@ -12,8 +12,8 @@ export default function TabLayout() {
           borderTopColor: '#e5e7eb',
           borderTopWidth: 1,
           paddingTop: 8,
-          paddingBottom: Platform.OS === 'ios' ? 34 : 20, // Increased bottom padding
-          height: Platform.OS === 'ios' ? 100 : 84, // Increased height
+          paddingBottom: Platform.OS === 'ios' ? 34 : 20,
+          height: Platform.OS === 'ios' ? 100 : 84,
         },
         tabBarActiveTintColor: '#3B82F6',
         tabBarInactiveTintColor: '#9CA3AF',
@@ -23,8 +23,8 @@ export default function TabLayout() {
           marginTop: 4,
         },
         tabBarItemStyle: {
-          paddingVertical: 8, // Added vertical padding
-          justifyContent: 'center', // Center items vertically
+          paddingVertical: 8,
+          justifyContent: 'center',
         },
       }}>
       <Tabs.Screen
@@ -33,21 +33,6 @@ export default function TabLayout() {
           title: 'Chat',
           tabBarIcon: ({ size, color }) => (
             <MessageCircle size={size} color={color} />
-          ),
-        }}
-        listeners={{
-          tabPress: (e) => {
-            // Prevent default behavior to keep chat state
-            // Chat will only reset when starting a new session explicitly
-          },
-        }}
-      />
-      <Tabs.Screen
-        name="notes"
-        options={{
-          title: 'Notes',
-          tabBarIcon: ({ size, color }) => (
-            <BookOpen size={size} color={color} />
           ),
         }}
       />
