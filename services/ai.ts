@@ -64,24 +64,19 @@ export class AIService {
       const conversationText = messages.map(m => `${m.role}: ${m.content}`).join('\n');
       const fullPrompt = `${systemPrompt}\n\nCurrent conversation:\n${conversationText}\n\nassistant:`;
       
-      // Generate response using Gemma-3
-      const result = await this.model.generateContent(fullPrompt);
-      const response = result.response;
+      // Generate response using Gemma-3 with streaming
+      const result = await this.model.generateContentStream(fullPrompt);
       
-      // Get the full text response (not streaming for now due to compatibility issues)
-      const fullText = response.text();
+      let fullText = '';
       
-      // Simulate streaming by breaking the text into chunks and calling the callback
-      if (onStreamUpdate) {
-        const words = fullText.split(' ');
-        let currentText = '';
+      // Process the streaming response
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        fullText += chunkText;
         
-        for (const word of words) {
-          currentText += (currentText ? ' ' : '') + word;
-          onStreamUpdate(currentText);
-          
-          // Add a small delay to simulate streaming
-          await new Promise(resolve => setTimeout(resolve, 20));
+        // Call the streaming callback if provided
+        if (onStreamUpdate) {
+          onStreamUpdate(fullText);
         }
       }
       
