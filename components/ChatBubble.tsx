@@ -1,15 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 import { Message } from '@/types';
-import { User, Bot, BookmarkPlus } from 'lucide-react-native';
+import { User, Bot } from 'lucide-react-native';
 
 interface ChatBubbleProps {
   message: Message;
-  onSaveAsNote?: (messageId: string) => void;
 }
 
-export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote }) => {
+export const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
   const isUser = message.role === 'user';
 
   const markdownStyles = {
@@ -36,7 +35,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote })
       color: isUser ? '#FFFFFF' : '#1F2937',
     },
     code_inline: {
-      backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
+      backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : '#F3F4F6',
       color: isUser ? '#FFFFFF' : '#1F2937',
       padding: 4,
       borderRadius: 6,
@@ -44,7 +43,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote })
       fontSize: 14,
     },
     code_block: {
-      backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
+      backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : '#F3F4F6',
       color: isUser ? '#FFFFFF' : '#1F2937',
       padding: 16,
       borderRadius: 8,
@@ -53,7 +52,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote })
       marginVertical: 12,
     },
     blockquote: {
-      backgroundColor: isUser ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+      backgroundColor: isUser ? 'rgba(255,255,255,0.1)' : '#F9FAFB',
       borderLeftWidth: 4,
       borderLeftColor: isUser ? 'rgba(255,255,255,0.5)' : '#3B82F6',
       paddingLeft: 16,
@@ -113,39 +112,6 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote })
     },
   };
 
-  const extractedNotesStyles = {
-    body: {
-      fontSize: 14,
-      lineHeight: 20,
-      color: isUser ? '#E5E7EB' : '#4B5563',
-      margin: 0,
-      padding: 0,
-    },
-    paragraph: {
-      fontSize: 14,
-      lineHeight: 20,
-      color: isUser ? '#E5E7EB' : '#4B5563',
-      marginBottom: 8,
-      marginTop: 0,
-    },
-    strong: {
-      fontWeight: '600',
-      color: isUser ? '#E5E7EB' : '#4B5563',
-    },
-    em: {
-      fontStyle: 'italic',
-      color: isUser ? '#E5E7EB' : '#4B5563',
-    },
-    code_inline: {
-      backgroundColor: isUser ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.05)',
-      color: isUser ? '#E5E7EB' : '#4B5563',
-      padding: 4,
-      borderRadius: 6,
-      fontFamily: 'monospace',
-      fontSize: 12,
-    },
-  };
-
   return (
     <View style={[styles.container, isUser ? styles.userContainer : styles.aiContainer]}>
       <View style={styles.messageWrapper}>
@@ -164,30 +130,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote })
             <Markdown style={markdownStyles}>
               {message.content}
             </Markdown>
-            
-            {message.extractedNotes && message.extractedNotes.length > 0 && (
-              <View style={styles.extractedNotesSection}>
-                <Text style={styles.extractedNotesTitle}>📝 Key Points:</Text>
-                {message.extractedNotes.map((note, index) => (
-                  <View key={index} style={styles.extractedNoteItem}>
-                    <Markdown style={extractedNotesStyles}>
-                      {`• ${note}`}
-                    </Markdown>
-                  </View>
-                ))}
-              </View>
-            )}
           </View>
-          
-          {!isUser && onSaveAsNote && message.extractedNotes && message.extractedNotes.length > 0 && (
-            <TouchableOpacity
-              style={styles.saveButton}
-              onPress={() => onSaveAsNote(message.id)}
-            >
-              <BookmarkPlus size={16} color="#6B7280" />
-              <Text style={styles.saveButtonText}>Save to Notes</Text>
-            </TouchableOpacity>
-          )}
         </View>
       </View>
       
@@ -228,7 +171,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   userAvatar: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#6366F1',
   },
   aiAvatar: {
     backgroundColor: '#8B5CF6',
@@ -246,44 +189,14 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   userBubble: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#6366F1',
     borderBottomRightRadius: 4,
   },
   aiBubble: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#E5E7EB',
     borderBottomLeftRadius: 4,
-  },
-  extractedNotesSection: {
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-  },
-  extractedNotesTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
-  },
-  extractedNoteItem: {
-    marginBottom: 8,
-  },
-  saveButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    backgroundColor: '#F3F4F6',
-    borderRadius: 16,
-    alignSelf: 'flex-start',
-  },
-  saveButtonText: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginLeft: 6,
   },
   timestamp: {
     fontSize: 11,
