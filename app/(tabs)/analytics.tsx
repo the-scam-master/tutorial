@@ -6,10 +6,7 @@ import { ActivityChart } from '@/components/ActivityChart';
 import { TrendingUp, Target, Calendar, RefreshCw, AlertCircle } from 'lucide-react-native';
 
 export default function AnalyticsScreen() {
-  const { analytics, loading, error, getTopTopics, getRecentActivity, getStudyInsights, refreshAnalytics } = useAnalytics();
-  const topTopics = getTopTopics(5);
-  const recentActivity = getRecentActivity(7);
-  const insights = getStudyInsights();
+  const { analytics, loading, error, topTopics, recentActivity, insights, refreshAnalytics } = useAnalytics();
 
   const handleRefresh = () => {
     refreshAnalytics();
@@ -18,6 +15,12 @@ export default function AnalyticsScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Study Analytics</Text>
+          <TouchableOpacity onPress={handleRefresh} style={styles.refreshButton}>
+            <RefreshCw size={20} color="#3B82F6" />
+          </TouchableOpacity>
+        </View>
         <View style={styles.loadingContainer}>
           <Text style={styles.loadingText}>Loading analytics...</Text>
         </View>
@@ -147,7 +150,7 @@ export default function AnalyticsScreen() {
       </ScrollView>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
