@@ -96,25 +96,53 @@ export const useChat = () => {
         setMessages(newMessages);
       }
       
-      // Generate AI response
-      const conversationHistory = newMessages.slice(-10); // Last 10 messages for context
-      const aiResponse = await AIService.generateResponse(
-        conversationHistory.map(m => ({ role: m.role, content: m.content })),
-        quickAction
-      );
-      
-      if (!isMounted.current) return;
-      
-      // Create AI message
+      // Create a placeholder AI message for streaming
+      const aiMessageId = (Date.now() + 1).toString();
       const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: aiResponse,
+        id: aiMessageId,
+        content: '',
         role: 'assistant',
         timestamp: new Date(),
       };
       
+      // Add placeholder AI message
+      const messagesWithPlaceholder = [...newMessages, aiMessage];
+      if (isMounted.current) {
+        setMessages(messagesWithPlaceholder);
+      }
+      
+      // Generate AI response with streaming
+      let fullResponse = '';
+      const conversationHistory = newMessages.slice(-10); // Last 10 messages for context
+      
+      await AIService.generateResponse(
+        conversationHistory.map(m => ({ role: m.role, content: m.content })),
+        quickAction,
+        (streamText) => {
+          // Update the message content as it streams in
+          if (isMounted.current) {
+            setMessages(prev => prev.map(msg => 
+              msg.id === aiMessageId ? { ...msg, content: streamText } : msg
+            ));
+          }
+        }
+      );
+      
+      // Get the final response
+      fullResponse = messagesWithPlaceholder[messagesWithPlaceholder.length - 1].content;
+      
+      // Extract key points
+      const keyPoints = AIService.extractKeyPoints(fullResponse);
+      
+      // Update the AI message with extracted notes
+      const finalAiMessage: Message = {
+        ...aiMessage,
+        content: fullResponse,
+        extractedNotes: keyPoints,
+      };
+      
       // Update messages
-      const finalMessages = [...newMessages, aiMessage];
+      const finalMessages = [...newMessages, finalAiMessage];
       if (isMounted.current) {
         setMessages(finalMessages);
         await StorageService.saveMessages(finalMessages);
@@ -148,6 +176,35 @@ export const useChat = () => {
     }
   }, [messages, apiKeySet]);
 
+  const saveMessageAsNote = async (messageId: string) => {
+    try {
+      const message = messages.find(m => m.id === messageId);
+      if (!message) return;
+      
+      // Save each extracted note individually
+      if (message.extractedNotes && message.extractedNotes.length > 0) {
+        const topic = AIService.extractTopic(message.content);
+        for (const note of message.extractedNotes) {
+          const noteData = {
+            id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            content: note,
+            topic,
+            timestamp: new Date().toISOString(),
+            source: 'auto',
+            chatMessageId: messageId,
+          };
+          
+          // Save to AsyncStorage
+          const notes = await StorageService.getNotes();
+          notes.push(noteData);
+          await StorageService.saveNotes(notes);
+        }
+      }
+    } catch (error) {
+      console.error('Error saving message as note:', error);
+    }
+  };
+
   const clearChat = async () => {
     try {
       await StorageService.endSession();
@@ -180,6 +237,7 @@ export const useChat = () => {
     loading,
     apiKeySet,
     sendMessage,
+    saveMessageAsNote,
     clearChat,
     startNewSession,
     setApiKey,
