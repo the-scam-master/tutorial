@@ -1,4 +1,3 @@
-// services/ai.ts
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { StorageService } from './storage';
 
@@ -83,98 +82,6 @@ export class AIService {
       }
       return 'Sorry, I encountered an error. Please try again.';
     }
-  }
-
-  static extractKeyPoints(content: string): string[] {
-    // Improved extraction logic
-    const keyPoints: string[] = [];
-    
-    // Split content into sections by headers
-    const sections = content.split(/(?=#{1,6}\s)/);
-    
-    sections.forEach(section => {
-      // Extract headers
-      const headerMatch = section.match(/^(#{1,6})\s+(.+)$/m);
-      const header = headerMatch ? headerMatch[2] : '';
-      
-      // Extract lists (both ordered and unordered)
-      const listItems = section.match(/^[\s]*[-*+]\s+(.+)$/gm) || 
-                       section.match(/^[\s]*\d+\.\s+(.+)$/gm) || [];
-      
-      // Extract bold or emphasized text
-      const boldText = section.match(/\*\*(.+?)\*\*/g) || 
-                      section.match(/\_\_(.+?)\_\_/g) || 
-                      section.match(/\*(.+?)\*/g) || 
-                      section.match(/\_(.+?)\_/g) || [];
-      
-      // Extract code blocks
-      const codeBlocks = section.match(/```[\s\S]*?```/g) || [];
-      
-      // Extract blockquotes
-      const blockquotes = section.match(/^>\s+(.+)$/gm) || [];
-      
-      // Add header as a key point if it exists
-      if (header && header.length > 10) {
-        keyPoints.push(header);
-      }
-      
-      // Add list items as key points
-      listItems.forEach(item => {
-        const cleanedItem = item.replace(/^[\s]*[-*+\d.]\s+/, '');
-        if (cleanedItem.length > 10 && cleanedItem.length < 100) {
-          keyPoints.push(cleanedItem);
-        }
-      });
-      
-      // Add bold text as key points
-      boldText.forEach(text => {
-        const cleanedText = text.replace(/\*\*|\_\_|\*|\_/g, '');
-        if (cleanedText.length > 10 && cleanedText.length < 100) {
-          keyPoints.push(cleanedText);
-        }
-      });
-      
-      // Add code blocks as key points
-      codeBlocks.forEach(block => {
-        const cleanedBlock = block.replace(/```[\s]*|```/g, '');
-        if (cleanedBlock.length > 10 && cleanedBlock.length < 100) {
-          keyPoints.push(`Code: ${cleanedBlock}`);
-        }
-      });
-      
-      // Add blockquotes as key points
-      blockquotes.forEach(quote => {
-        const cleanedQuote = quote.replace(/^>\s+/, '');
-        if (cleanedQuote.length > 10 && cleanedQuote.length < 100) {
-          keyPoints.push(`Quote: ${cleanedQuote}`);
-        }
-      });
-    });
-    
-    // If no structured content found, extract sentences with keywords
-    if (keyPoints.length === 0) {
-      const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 15);
-      const keywords = [
-        'important', 'key', 'essential', 'critical', 'significant', 
-        'remember', 'note', 'concept', 'principle', 'rule', 'definition',
-        'must', 'should', 'always', 'never'
-      ];
-      
-      sentences.forEach(sentence => {
-        const trimmed = sentence.trim();
-        const hasKeyword = keywords.some(keyword => 
-          trimmed.toLowerCase().includes(keyword)
-        );
-        
-        if (hasKeyword || trimmed.length > 60) {
-          keyPoints.push(trimmed);
-        }
-      });
-    }
-    
-    // Remove duplicates and limit to 5 key points
-    const uniquePoints = [...new Set(keyPoints)];
-    return uniquePoints.slice(0, 5);
   }
 
   static extractTopic(content: string): string {
