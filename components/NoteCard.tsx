@@ -1,33 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
+import Markdown from 'react-native-markdown-display';
 import { Note } from '@/types';
 import { CreditCard as Edit3, Trash2, Check, X, Bot, User } from 'lucide-react-native';
-
-// Simple markdown parser for basic formatting
-const parseMarkdown = (text: string) => {
-  return text
-    // Bold text
-    .replace(/\*\*(.*?)\*\*/g, '•$1•')
-    .replace(/__(.*?)__/g, '•$1•')
-    // Italic text
-    .replace(/\*(.*?)\*/g, '_$1_')
-    .replace(/_(.*?)_/g, '_$1_')
-    // Headers
-    .replace(/^### (.*$)/gm, '📝 $1')
-    .replace(/^## (.*$)/gm, '📋 $1')
-    .replace(/^# (.*$)/gm, '📌 $1')
-    // Code blocks
-    .replace(/```(.*?)```/gs, '💻 $1 💻')
-    .replace(/`(.*?)`/g, '⚡$1⚡')
-    // Lists
-    .replace(/^- (.*$)/gm, '• $1')
-    .replace(/^\* (.*$)/gm, '• $1')
-    .replace(/^\d+\. (.*$)/gm, '🔢 $1')
-    // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '🔗 $1')
-    // Blockquotes
-    .replace(/^> (.*$)/gm, '💬 $1');
-};
 
 interface NoteCardProps {
   note: Note;
@@ -71,6 +46,88 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
     );
   };
 
+  // Markdown styles for notes
+  const markdownStyles = {
+    body: {
+      fontSize: 16,
+      lineHeight: 22,
+      color: '#1F2937',
+      margin: 0,
+      padding: 0,
+    },
+    paragraph: {
+      fontSize: 16,
+      lineHeight: 22,
+      color: '#1F2937',
+      marginBottom: 8,
+      marginTop: 0,
+    },
+    strong: {
+      fontWeight: '700',
+      color: '#1F2937',
+    },
+    em: {
+      fontStyle: 'italic',
+      color: '#1F2937',
+    },
+    code_inline: {
+      backgroundColor: 'rgba(0,0,0,0.1)',
+      color: '#1F2937',
+      padding: 2,
+      borderRadius: 4,
+      fontFamily: 'monospace',
+      fontSize: 14,
+    },
+    code_block: {
+      backgroundColor: 'rgba(0,0,0,0.1)',
+      color: '#1F2937',
+      padding: 12,
+      borderRadius: 8,
+      fontFamily: 'monospace',
+      fontSize: 14,
+      marginVertical: 8,
+    },
+    blockquote: {
+      backgroundColor: 'rgba(0,0,0,0.05)',
+      borderLeftWidth: 4,
+      borderLeftColor: '#3B82F6',
+      paddingLeft: 12,
+      marginVertical: 8,
+      fontStyle: 'italic',
+    },
+    list_item: {
+      fontSize: 16,
+      lineHeight: 22,
+      color: '#1F2937',
+      marginBottom: 4,
+    },
+    link: {
+      color: '#3B82F6',
+      textDecorationLine: 'underline',
+    },
+    heading1: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: '#1F2937',
+      marginBottom: 8,
+      marginTop: 8,
+    },
+    heading2: {
+      fontSize: 20,
+      fontWeight: '600',
+      color: '#1F2937',
+      marginBottom: 6,
+      marginTop: 6,
+    },
+    heading3: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: '#1F2937',
+      marginBottom: 4,
+      marginTop: 4,
+    },
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -105,9 +162,9 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
             placeholder="Note content"
           />
         ) : (
-          <Text style={styles.contentText}>
-            {parseMarkdown(note.content)}
-          </Text>
+          <Markdown style={markdownStyles}>
+            {note.content}
+          </Markdown>
         )}
       </View>
       <View style={styles.footer}>
@@ -198,11 +255,6 @@ const styles = StyleSheet.create({
     padding: 12,
     textAlignVertical: 'top',
     minHeight: 80,
-  },
-  contentText: {
-    fontSize: 16,
-    lineHeight: 22,
-    color: '#1F2937',
   },
   footer: {
     flexDirection: 'row',
