@@ -1,4 +1,3 @@
-// hooks/useAnalytics.ts
 import { useState, useEffect } from 'react';
 import { Analytics } from '@/types';
 import { StorageService } from '@/services/storage';
@@ -12,6 +11,7 @@ export const useAnalytics = () => {
     dailyActivity: {},
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadAnalytics();
@@ -19,96 +19,122 @@ export const useAnalytics = () => {
 
   const loadAnalytics = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const data = await StorageService.getAnalytics();
       console.log('Loaded analytics:', data); // Debug log
       setAnalytics(data);
     } catch (error) {
       console.error('Error loading analytics:', error);
+      setError('Failed to load analytics data');
+      // Set default analytics to prevent crashes
+      setAnalytics({
+        totalSessions: 0,
+        totalMessages: 0,
+        streakDays: 0,
+        topicFrequency: {},
+        dailyActivity: {},
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const getTopTopics = (limit = 5) => {
-    return Object.entries(analytics.topicFrequency)
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, limit)
-      .map(([topic, count]) => ({ topic, count }));
+    try {
+      return Object.entries(analytics.topicFrequency)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, limit)
+        .map(([topic, count]) => ({ topic, count }));
+    } catch (error) {
+      console.error('Error getting top topics:', error);
+      return [];
+    }
   };
 
   const getRecentActivity = (days = 7) => {
-    const activity = [];
-    const today = new Date();
-    
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const dateKey = date.toISOString().split('T')[0];
-      const count = analytics.dailyActivity[dateKey] || 0;
+    try {
+      const activity = [];
+      const today = new Date();
       
-      activity.push({
-        date: date.toLocaleDateString([], { month: 'short', day: 'numeric' }),
-        count,
-        isToday: i === 0,
-      });
+      for (let i = days - 1; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dateKey = date.toISOString().split('T')[0];
+        const count = analytics.dailyActivity[dateKey] || 0;
+        
+        activity.push({
+          date: date.toLocaleDateString([], { month: 'short', day: 'numeric' }),
+          count,
+          isToday: i === 0,
+        });
+      }
+      
+      return activity;
+    } catch (error) {
+      console.error('Error getting recent activity:', error);
+      return [];
     }
-    
-    return activity;
   };
 
   const getStudyInsights = () => {
-    const insights = [];
-    
-    if (analytics.streakDays > 0) {
-      insights.push({
-        type: 'streak',
-        title: 'Study Streak',
-        value: `${analytics.streakDays} day${analytics.streakDays > 1 ? 's' : ''}`,
-        color: '#10B981',
-      });
+    try {
+      const insights = [];
+      
+      if (analytics.streakDays > 0) {
+        insights.push({
+          type: 'streak',
+          title: 'Study Streak',
+          value: `${analytics.streakDays} day${analytics.streakDays > 1 ? 's' : ''}`,
+          color: '#10B981',
+        });
+      }
+      
+      if (analytics.totalSessions > 0) {
+        const avgMessages = Math.round(analytics.totalMessages / analytics.totalSessions);
+        insights.push({
+          type: 'avg_messages',
+          title: 'Avg. Questions per Session',
+          value: avgMessages.toString(),
+          color: '#3B82F6',
+        });
+      }
+      
+      const topTopic = getTopTopics(1)[0];
+      if (topTopic) {
+        insights.push({
+          type: 'top_topic',
+          title: 'Most Studied Topic',
+          value: topTopic.topic,
+          color: '#8B5CF6',
+        });
+      }
+      
+      // Add total time spent if available
+      if (analytics.totalSessions > 0) {
+        insights.push({
+          type: 'sessions',
+          title: 'Total Sessions',
+          value: analytics.totalSessions.toString(),
+          color: '#F59E0B',
+        });
+      }
+      
+      return insights;
+    } catch (error) {
+      console.error('Error getting study insights:', error);
+      return [];
     }
-    
-    if (analytics.totalSessions > 0) {
-      const avgMessages = Math.round(analytics.totalMessages / analytics.totalSessions);
-      insights.push({
-        type: 'avg_messages',
-        title: 'Avg. Questions per Session',
-        value: avgMessages.toString(),
-        color: '#3B82F6',
-      });
-    }
-    
-    const topTopic = getTopTopics(1)[0];
-    if (topTopic) {
-      insights.push({
-        type: 'top_topic',
-        title: 'Most Studied Topic',
-        value: topTopic.topic,
-        color: '#8B5CF6',
-      });
-    }
-    
-    // Add total time spent if available
-    if (analytics.totalSessions > 0) {
-      insights.push({
-        type: 'sessions',
-        title: 'Total Sessions',
-        value: analytics.totalSessions.toString(),
-        color: '#F59E0B',
-      });
-    }
-    
-    return insights;
   };
 
   const refreshAnalytics = async () => {
-    setLoading(true);
     await loadAnalytics();
   };
 
   return {
     analytics,
     loading,
+    error,
     getTopTopics,
     getRecentActivity,
     getStudyInsights,
