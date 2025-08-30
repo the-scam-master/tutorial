@@ -1,10 +1,8 @@
-// services/storage.ts
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Message, Note, StudySession, Analytics } from '@/types';
+import { Message, StudySession, Analytics } from '@/types';
 
 const KEYS = {
   MESSAGES: 'tutor_messages',
-  NOTES: 'tutor_notes',
   SESSIONS: 'tutor_sessions',
   ANALYTICS: 'tutor_analytics',
   CURRENT_SESSION: 'tutor_current_session',
@@ -28,6 +26,7 @@ export class StorageService {
       await AsyncStorage.setItem(KEYS.API_KEY, apiKey);
     } catch (error) {
       console.error('Error setting API key:', error);
+      throw error;
     }
   }
 
@@ -76,58 +75,6 @@ export class StorageService {
       await AsyncStorage.setItem(KEYS.MESSAGES, JSON.stringify(messages));
     } catch (error) {
       console.error('Error saving messages:', error);
-    }
-  }
-
-  // Notes
-  static async getNotes(): Promise<Note[]> {
-    try {
-      const data = await AsyncStorage.getItem(KEYS.NOTES);
-      return data ? JSON.parse(data) : [];
-    } catch (error) {
-      console.error('Error getting notes:', error);
-      return [];
-    }
-  }
-
-  static async saveNotes(notes: Note[]): Promise<void> {
-    try {
-      await AsyncStorage.setItem(KEYS.NOTES, JSON.stringify(notes));
-    } catch (error) {
-      console.error('Error saving notes:', error);
-    }
-  }
-
-  static async addNote(note: Note): Promise<void> {
-    try {
-      const notes = await this.getNotes();
-      notes.push(note);
-      await this.saveNotes(notes);
-    } catch (error) {
-      console.error('Error adding note:', error);
-    }
-  }
-
-  static async updateNote(noteId: string, updates: Partial<Note>): Promise<void> {
-    try {
-      const notes = await this.getNotes();
-      const index = notes.findIndex(n => n.id === noteId);
-      if (index !== -1) {
-        notes[index] = { ...notes[index], ...updates };
-        await this.saveNotes(notes);
-      }
-    } catch (error) {
-      console.error('Error updating note:', error);
-    }
-  }
-
-  static async deleteNote(noteId: string): Promise<void> {
-    try {
-      const notes = await this.getNotes();
-      const filtered = notes.filter(n => n.id !== noteId);
-      await this.saveNotes(filtered);
-    } catch (error) {
-      console.error('Error deleting note:', error);
     }
   }
 
