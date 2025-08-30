@@ -13,7 +13,7 @@ export class AIService {
       }
 
       this.genAI = new GoogleGenerativeAI(apiKey);
-      this.model = this.genAI.getGenerativeModel({ model: 'gemma-2-27b-it' });
+      this.model = this.genAI.getGenerativeModel({ model: 'gemma-3-27b-it' });
       return true;
     } catch (error) {
       console.error('Error initializing AI:', error);
