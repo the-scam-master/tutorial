@@ -15,7 +15,6 @@ export default function ChatScreen() {
     loading, 
     apiKeySet, 
     sendMessage, 
-    saveMessageAsNote,
     clearChat, 
     startNewSession,
     setApiKey,
@@ -25,14 +24,12 @@ export default function ChatScreen() {
   const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
-    // Show API key modal if not set
     if (!apiKeySet) {
       setShowApiKeyModal(true);
     }
   }, [apiKeySet]);
 
   useEffect(() => {
-    // Scroll to bottom when new messages arrive
     if (messages.length > 0) {
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
@@ -57,10 +54,7 @@ export default function ChatScreen() {
   };
 
   const renderMessage = ({ item }) => (
-    <ChatBubble 
-      message={item} 
-      onSaveAsNote={saveMessageAsNote}
-    />
+    <ChatBubble message={item} />
   );
 
   const EmptyState = () => (
@@ -70,7 +64,7 @@ export default function ChatScreen() {
       </View>
       <Text style={styles.emptyTitle}>Welcome to AI Tutor!</Text>
       <Text style={styles.emptySubtitle}>
-        Ask me anything you'd like to learn about. I'll help you understand complex topics and automatically extract key points.
+        Ask me anything you'd like to learn about. I'll help you understand complex topics with clear explanations.
       </Text>
       {!apiKeySet && (
         <TouchableOpacity 
@@ -132,7 +126,7 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#F9FAFB',
   },
   header: {
     flexDirection: 'row',
@@ -140,7 +134,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
@@ -162,7 +156,7 @@ const styles = StyleSheet.create({
   },
   messagesList: {
     flex: 1,
-    backgroundColor: '#FAFBFC',
+    backgroundColor: '#F9FAFB',
   },
   listContent: {
     paddingVertical: 16,
@@ -200,7 +194,7 @@ const styles = StyleSheet.create({
   setupButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#6366F1',
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderRadius: 12,
