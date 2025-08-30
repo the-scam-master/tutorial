@@ -23,14 +23,23 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
   onSave 
 }) => {
   const [apiKey, setApiKey] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSave = () => {
-    if (apiKey.trim()) {
-      onSave(apiKey.trim());
+  const handleSave = async () => {
+    if (!apiKey.trim()) {
+      Alert.alert('Error', 'Please enter a valid API key');
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      await onSave(apiKey.trim());
       setApiKey('');
       onClose();
-    } else {
-      Alert.alert('Error', 'Please enter a valid API key');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save API key');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -40,7 +49,6 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
   };
 
   const openApiKeyGuide = () => {
-    // In a real app, you'd open the browser
     Alert.alert(
       'Get API Key',
       'Visit https://aistudio.google.com/app/apikey to get your free Google AI API key'
@@ -61,15 +69,14 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
           <Text style={styles.title}>Setup AI</Text>
           <TouchableOpacity 
             onPress={handleSave} 
-            style={[styles.saveButton, !apiKey.trim() && styles.saveButtonDisabled]}
-            disabled={!apiKey.trim()}
+            style={[styles.saveButton, (!apiKey.trim() || isLoading) && styles.saveButtonDisabled]}
+            disabled={!apiKey.trim() || isLoading}
           >
-            <Text style={[styles.saveButtonText, !apiKey.trim() && styles.saveButtonTextDisabled]}>
-              Save
+            <Text style={[styles.saveButtonText, (!apiKey.trim() || isLoading) && styles.saveButtonTextDisabled]}>
+              {isLoading ? 'Saving...' : 'Save'}
             </Text>
           </TouchableOpacity>
         </View>
-
         <View style={styles.content}>
           <View style={styles.iconContainer}>
             <Key size={48} color="#3B82F6" />
@@ -79,12 +86,10 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
             To start chatting with your AI tutor, you'll need a Google AI API key. 
             It's free and takes just a minute to set up.
           </Text>
-
           <TouchableOpacity style={styles.guideButton} onPress={openApiKeyGuide}>
             <ExternalLink size={20} color="#3B82F6" />
             <Text style={styles.guideButtonText}>Get Free API Key</Text>
           </TouchableOpacity>
-
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Google AI API Key</Text>
             <TextInput
@@ -96,6 +101,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
+              editable={!isLoading}
             />
             <Text style={styles.inputHint}>
               Your API key is stored locally and never shared
