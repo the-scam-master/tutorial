@@ -11,6 +11,7 @@ export const useChat = () => {
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const isMounted = useRef(true);
   const streamingMessageId = useRef<string | null>(null);
+  const messagesRef = useRef<Message[]>([]); // Add ref to track current messages
 
   useEffect(() => {
     isMounted.current = true;
@@ -21,6 +22,11 @@ export const useChat = () => {
       isMounted.current = false;
     };
   }, []);
+
+  // Update messages ref whenever state changes
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   const checkApiKey = async () => {
     try {
@@ -41,6 +47,7 @@ export const useChat = () => {
       const savedMessages = await StorageService.getMessages();
       if (isMounted.current) {
         setMessages(savedMessages);
+        messagesRef.current = savedMessages;
       }
     } catch (error) {
       console.error('Error loading messages:', error);
@@ -92,14 +99,15 @@ export const useChat = () => {
       };
       
       // Add user message immediately
-      const newMessages = [...messages, userMessage];
+      const newMessages = [...messagesRef.current, userMessage];
       if (isMounted.current) {
         setMessages(newMessages);
+        messagesRef.current = newMessages;
       }
       
       // Create a placeholder AI message for streaming
       const aiMessageId = (Date.now() + 1).toString();
-      streamingMessageId.current = aiMessageId; // Track the streaming message
+      streamingMessageId.current = aiMessageId;
       
       const aiMessage: Message = {
         id: aiMessageId,
@@ -112,6 +120,7 @@ export const useChat = () => {
       const messagesWithPlaceholder = [...newMessages, aiMessage];
       if (isMounted.current) {
         setMessages(messagesWithPlaceholder);
+        messagesRef.current = messagesWithPlaceholder;
       }
       
       // Generate AI response with streaming
@@ -122,19 +131,17 @@ export const useChat = () => {
         conversationHistory.map(m => ({ role: m.role, content: m.content })),
         quickAction,
         (streamText) => {
-          // Update the message content as it streams in
+          fullResponse = streamText; // Keep track of the full response
           if (isMounted.current && streamingMessageId.current === aiMessageId) {
-            setMessages(prev => prev.map(msg => 
+            // Update the message content as it streams in
+            const updatedMessages = messagesRef.current.map(msg => 
               msg.id === aiMessageId ? { ...msg, content: streamText } : msg
-            ));
+            );
+            setMessages(updatedMessages);
+            messagesRef.current = updatedMessages;
           }
         }
       );
-      
-      // Get the final response from the current state to ensure we have the latest
-      const currentMessages = isMounted.current ? messages : messagesWithPlaceholder;
-      const lastMessage = currentMessages[currentMessages.length - 1];
-      fullResponse = lastMessage?.content || '';
       
       // Extract key points using the specialized AI model
       let keyPoints: string[] = [];
@@ -142,23 +149,20 @@ export const useChat = () => {
         keyPoints = await AIService.extractKeyPoints(fullResponse);
       } catch (error) {
         console.error('Error extracting key points:', error);
-        // Fallback to empty array if extraction fails
         keyPoints = [];
       }
       
       // Update the AI message with extracted notes
-      const finalAiMessage: Message = {
-        id: aiMessageId,
-        content: fullResponse,
-        role: 'assistant',
-        timestamp: new Date(),
-        extractedNotes: keyPoints,
-      };
-      
-      // Update messages with the final message including extracted notes
-      const finalMessages = [...newMessages, finalAiMessage];
       if (isMounted.current) {
+        const finalMessages = messagesRef.current.map(msg => 
+          msg.id === aiMessageId 
+            ? { ...msg, extractedNotes: keyPoints } 
+            : msg
+        );
         setMessages(finalMessages);
+        messagesRef.current = finalMessages;
+        
+        // Save to storage
         await StorageService.saveMessages(finalMessages);
       }
       
@@ -173,6 +177,7 @@ export const useChat = () => {
         if (!session.topics.includes(topic)) {
           session.topics.push(topic);
         }
+        await StorageService.updateSessionAnalytics(session);
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -188,17 +193,19 @@ export const useChat = () => {
         role: 'assistant',
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, errorMessage]);
+      const updatedMessages = [...messagesRef.current, errorMessage];
+      setMessages(updatedMessages);
+      messagesRef.current = updatedMessages;
     } finally {
       if (isMounted.current) {
         setLoading(false);
       }
     }
-  }, [messages, apiKeySet]);
+  }, [apiKeySet]);
 
   const saveMessageAsNote = async (messageId: string) => {
     try {
-      const message = messages.find(m => m.id === messageId);
+      const message = messagesRef.current.find(m => m.id === messageId);
       if (!message) return;
       
       // Save each extracted note individually
@@ -231,6 +238,7 @@ export const useChat = () => {
       await StorageService.clearConversationMemory();
       if (isMounted.current) {
         setMessages([]);
+        messagesRef.current = [];
       }
       await StorageService.saveMessages([]);
       await initializeSession();
@@ -244,6 +252,7 @@ export const useChat = () => {
       await StorageService.endSession();
       if (isMounted.current) {
         setMessages([]);
+        messagesRef.current = [];
       }
       await StorageService.saveMessages([]);
       await initializeSession();
