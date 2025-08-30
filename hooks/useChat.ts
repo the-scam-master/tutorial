@@ -89,7 +89,6 @@ export const useChat = () => {
     setLoading(true);
     
     try {
-      // Create user message
       const userMessage: Message = {
         id: Date.now().toString(),
         content: content.trim(),
@@ -97,14 +96,12 @@ export const useChat = () => {
         timestamp: new Date(),
       };
       
-      // Add user message immediately
       const newMessages = [...messagesRef.current, userMessage];
       if (isMounted.current) {
         setMessages(newMessages);
         messagesRef.current = newMessages;
       }
       
-      // Create a placeholder AI message for streaming
       const aiMessageId = (Date.now() + 1).toString();
       streamingMessageId.current = aiMessageId;
       
@@ -115,16 +112,14 @@ export const useChat = () => {
         timestamp: new Date(),
       };
       
-      // Add placeholder AI message
       const messagesWithPlaceholder = [...newMessages, aiMessage];
       if (isMounted.current) {
         setMessages(messagesWithPlaceholder);
         messagesRef.current = messagesWithPlaceholder;
       }
       
-      // Generate AI response with streaming
       let fullResponse = '';
-      const conversationHistory = newMessages.slice(-10); // Last 10 messages for context
+      const conversationHistory = newMessages.slice(-10);
       
       await AIService.generateResponse(
         conversationHistory.map(m => ({ role: m.role, content: m.content })),
@@ -141,37 +136,15 @@ export const useChat = () => {
         }
       );
       
-      // Extract key points immediately after response
-      let keyPoints: string[] = [];
-      try {
-        keyPoints = await AIService.extractKeyPoints(fullResponse);
-        console.log('Extracted key points:', keyPoints);
-      } catch (error) {
-        console.error('Error extracting key points:', error);
-        keyPoints = [];
-      }
-      
-      // Update the AI message with extracted notes
       if (isMounted.current) {
-        const finalMessages = messagesRef.current.map(msg => 
-          msg.id === aiMessageId 
-            ? { ...msg, extractedNotes: keyPoints } 
-            : msg
-        );
-        setMessages(finalMessages);
-        messagesRef.current = finalMessages;
-        
-        // Save to storage immediately
-        await StorageService.saveMessages(finalMessages);
+        await StorageService.saveMessages(messagesRef.current);
       }
       
-      // Clear the streaming message ID
       streamingMessageId.current = null;
       
-      // Update session analytics
       const session = await StorageService.getCurrentSession();
       if (session) {
-        session.messageCount += 2; // User + AI message
+        session.messageCount += 2;
         const topic = AIService.extractTopic(content);
         if (!session.topics.includes(topic)) {
           session.topics.push(topic);
@@ -182,10 +155,8 @@ export const useChat = () => {
       console.error('Error sending message:', error);
       if (!isMounted.current) return;
       
-      // Clear the streaming message ID
       streamingMessageId.current = null;
       
-      // Add error message
       const errorMessage: Message = {
         id: Date.now().toString(),
         content: 'Sorry, I encountered an error. Please try again.',
@@ -201,35 +172,6 @@ export const useChat = () => {
       }
     }
   }, [apiKeySet]);
-
-  const saveMessageAsNote = async (messageId: string) => {
-    try {
-      const message = messagesRef.current.find(m => m.id === messageId);
-      if (!message || !message.extractedNotes || message.extractedNotes.length === 0) return;
-      
-      // Create a single note with all key points
-      const topic = AIService.extractTopic(message.content);
-      const noteContent = message.extractedNotes.map((note, index) => `${index + 1}. ${note}`).join('\n\n');
-      
-      const noteData = {
-        id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        content: noteContent,
-        topic,
-        timestamp: new Date().toISOString(),
-        source: 'auto',
-        chatMessageId: messageId,
-      };
-      
-      // Save to AsyncStorage
-      const notes = await StorageService.getNotes();
-      notes.push(noteData);
-      await StorageService.saveNotes(notes);
-      
-      console.log('Saved note:', noteData);
-    } catch (error) {
-      console.error('Error saving message as note:', error);
-    }
-  };
 
   const clearChat = async () => {
     try {
@@ -265,7 +207,6 @@ export const useChat = () => {
     loading,
     apiKeySet,
     sendMessage,
-    saveMessageAsNote,
     clearChat,
     startNewSession,
     setApiKey,
