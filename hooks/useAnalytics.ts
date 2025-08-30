@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Analytics } from '@/types';
 import { StorageService } from '@/services/storage';
 
@@ -22,12 +22,10 @@ export const useAnalytics = () => {
       setLoading(true);
       setError(null);
       const data = await StorageService.getAnalytics();
-      console.log('Loaded analytics:', data); // Debug log
       setAnalytics(data);
     } catch (error) {
       console.error('Error loading analytics:', error);
       setError('Failed to load analytics data');
-      // Set default analytics to prevent crashes
       setAnalytics({
         totalSessions: 0,
         totalMessages: 0,
@@ -40,24 +38,25 @@ export const useAnalytics = () => {
     }
   };
 
-  const getTopTopics = (limit = 5) => {
+  // Memoized derived data to prevent recalculation on every render
+  const topTopics = useMemo(() => {
     try {
       return Object.entries(analytics.topicFrequency)
         .sort(([,a], [,b]) => b - a)
-        .slice(0, limit)
+        .slice(0, 5)
         .map(([topic, count]) => ({ topic, count }));
     } catch (error) {
       console.error('Error getting top topics:', error);
       return [];
     }
-  };
+  }, [analytics.topicFrequency]);
 
-  const getRecentActivity = (days = 7) => {
+  const recentActivity = useMemo(() => {
     try {
       const activity = [];
       const today = new Date();
       
-      for (let i = days - 1; i >= 0; i--) {
+      for (let i = 6; i >= 0; i--) {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const dateKey = date.toISOString().split('T')[0];
@@ -75,9 +74,9 @@ export const useAnalytics = () => {
       console.error('Error getting recent activity:', error);
       return [];
     }
-  };
+  }, [analytics.dailyActivity]);
 
-  const getStudyInsights = () => {
+  const insights = useMemo(() => {
     try {
       const insights = [];
       
@@ -100,17 +99,15 @@ export const useAnalytics = () => {
         });
       }
       
-      const topTopic = getTopTopics(1)[0];
-      if (topTopic) {
+      if (topTopics.length > 0) {
         insights.push({
           type: 'top_topic',
           title: 'Most Studied Topic',
-          value: topTopic.topic,
+          value: topTopics[0].topic,
           color: '#8B5CF6',
         });
       }
       
-      // Add total time spent if available
       if (analytics.totalSessions > 0) {
         insights.push({
           type: 'sessions',
@@ -125,7 +122,7 @@ export const useAnalytics = () => {
       console.error('Error getting study insights:', error);
       return [];
     }
-  };
+  }, [analytics, topTopics]);
 
   const refreshAnalytics = async () => {
     await loadAnalytics();
@@ -135,9 +132,9 @@ export const useAnalytics = () => {
     analytics,
     loading,
     error,
-    getTopTopics,
-    getRecentActivity,
-    getStudyInsights,
+    topTopics,
+    recentActivity,
+    insights,
     refreshAnalytics,
   };
 };
