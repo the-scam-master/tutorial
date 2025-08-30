@@ -224,11 +224,6 @@ const styles = StyleSheet.create({
   content: {
     marginBottom: 12,
   },
-  contentText: {
-    fontSize: 16,
-    lineHeight: 22,
-    color: '#1F2937',
-  },
   contentInput: {
     fontSize: 16,
     lineHeight: 22,
