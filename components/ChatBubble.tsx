@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import Markdown from 'react-native-markdown-display';
 import { Message } from '@/types';
 import { User, Bot, BookmarkPlus } from 'lucide-react-native';
 
@@ -8,34 +9,144 @@ interface ChatBubbleProps {
   onSaveAsNote?: (messageId: string) => void;
 }
 
-// Simple markdown parser for basic formatting
-const parseMarkdown = (text: string) => {
-  return text
-    // Bold text
-    .replace(/\*\*(.*?)\*\*/g, '•$1•')
-    .replace(/__(.*?)__/g, '•$1•')
-    // Italic text
-    .replace(/\*(.*?)\*/g, '_$1_')
-    .replace(/_(.*?)_/g, '_$1_')
-    // Headers
-    .replace(/^### (.*$)/gm, '📝 $1')
-    .replace(/^## (.*$)/gm, '📋 $1')
-    .replace(/^# (.*$)/gm, '📌 $1')
-    // Code blocks
-    .replace(/```(.*?)```/gs, '💻 $1 💻')
-    .replace(/`(.*?)`/g, '⚡$1⚡')
-    // Lists
-    .replace(/^- (.*$)/gm, '• $1')
-    .replace(/^\* (.*$)/gm, '• $1')
-    .replace(/^\d+\. (.*$)/gm, '🔢 $1')
-    // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '🔗 $1')
-    // Blockquotes
-    .replace(/^> (.*$)/gm, '💬 $1');
-};
-
 export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote }) => {
   const isUser = message.role === 'user';
+
+  // Custom markdown styles that match our app's design
+  const markdownStyles = {
+    body: {
+      fontSize: 16,
+      lineHeight: 22,
+      color: isUser ? '#FFFFFF' : '#1F2937',
+      margin: 0,
+      padding: 0,
+    },
+    paragraph: {
+      fontSize: 16,
+      lineHeight: 22,
+      color: isUser ? '#FFFFFF' : '#1F2937',
+      marginBottom: 8,
+      marginTop: 0,
+    },
+    strong: {
+      fontWeight: '700',
+      color: isUser ? '#FFFFFF' : '#1F2937',
+    },
+    em: {
+      fontStyle: 'italic',
+      color: isUser ? '#FFFFFF' : '#1F2937',
+    },
+    code_inline: {
+      backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
+      color: isUser ? '#FFFFFF' : '#1F2937',
+      padding: 2,
+      borderRadius: 4,
+      fontFamily: 'monospace',
+      fontSize: 14,
+    },
+    code_block: {
+      backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
+      color: isUser ? '#FFFFFF' : '#1F2937',
+      padding: 12,
+      borderRadius: 8,
+      fontFamily: 'monospace',
+      fontSize: 14,
+      marginVertical: 8,
+    },
+    blockquote: {
+      backgroundColor: isUser ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+      borderLeftWidth: 4,
+      borderLeftColor: isUser ? 'rgba(255,255,255,0.5)' : '#3B82F6',
+      paddingLeft: 12,
+      marginVertical: 8,
+      fontStyle: 'italic',
+    },
+    list_item: {
+      fontSize: 16,
+      lineHeight: 22,
+      color: isUser ? '#FFFFFF' : '#1F2937',
+      marginBottom: 4,
+    },
+    bullet_list: {
+      marginBottom: 8,
+    },
+    ordered_list: {
+      marginBottom: 8,
+    },
+    link: {
+      color: isUser ? '#93C5FD' : '#3B82F6',
+      textDecorationLine: 'underline',
+    },
+    heading1: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: isUser ? '#FFFFFF' : '#1F2937',
+      marginBottom: 8,
+      marginTop: 8,
+    },
+    heading2: {
+      fontSize: 20,
+      fontWeight: '600',
+      color: isUser ? '#FFFFFF' : '#1F2937',
+      marginBottom: 6,
+      marginTop: 6,
+    },
+    heading3: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: isUser ? '#FFFFFF' : '#1F2937',
+      marginBottom: 4,
+      marginTop: 4,
+    },
+    table: {
+      borderWidth: 1,
+      borderColor: isUser ? 'rgba(255,255,255,0.3)' : '#E5E7EB',
+      marginVertical: 8,
+    },
+    table_header: {
+      backgroundColor: isUser ? 'rgba(255,255,255,0.1)' : '#F3F4F6',
+      fontWeight: '600',
+    },
+    table_cell: {
+      borderWidth: 1,
+      borderColor: isUser ? 'rgba(255,255,255,0.3)' : '#E5E7EB',
+      padding: 8,
+    },
+  };
+
+  // Styles for extracted notes
+  const extractedNotesStyles = {
+    body: {
+      fontSize: 14,
+      lineHeight: 18,
+      color: isUser ? '#E5E7EB' : '#4B5563',
+      margin: 0,
+      padding: 0,
+    },
+    paragraph: {
+      fontSize: 14,
+      lineHeight: 18,
+      color: isUser ? '#E5E7EB' : '#4B5563',
+      marginBottom: 4,
+      marginTop: 0,
+    },
+    strong: {
+      fontWeight: '600',
+      color: isUser ? '#E5E7EB' : '#4B5563',
+    },
+    em: {
+      fontStyle: 'italic',
+      color: isUser ? '#E5E7EB' : '#4B5563',
+    },
+    code_inline: {
+      backgroundColor: isUser ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.05)',
+      color: isUser ? '#E5E7EB' : '#4B5563',
+      padding: 2,
+      borderRadius: 4,
+      fontFamily: 'monospace',
+      fontSize: 12,
+    },
+  };
 
   return (
     <View style={[styles.container, isUser ? styles.userContainer : styles.aiContainer]}>
@@ -52,17 +163,19 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote })
         
         <View style={styles.messageSection}>
           <View style={[styles.bubble, isUser ? styles.userBubble : styles.aiBubble]}>
-            <Text style={[styles.messageText, isUser ? styles.userText : styles.aiText]}>
-              {parseMarkdown(message.content)}
-            </Text>
+            <Markdown style={markdownStyles}>
+              {message.content}
+            </Markdown>
             
             {message.extractedNotes && message.extractedNotes.length > 0 && (
               <View style={styles.extractedNotesSection}>
                 <Text style={styles.extractedNotesTitle}>📝 Key Points:</Text>
                 {message.extractedNotes.map((note, index) => (
-                  <Text key={index} style={styles.extractedNote}>
-                    • {note}
-                  </Text>
+                  <View key={index} style={styles.extractedNoteItem}>
+                    <Markdown style={extractedNotesStyles}>
+                      {`• ${note}`}
+                    </Markdown>
+                  </View>
                 ))}
               </View>
             )}
@@ -144,16 +257,6 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
     borderBottomLeftRadius: 4,
   },
-  messageText: {
-    fontSize: 16,
-    lineHeight: 22,
-  },
-  userText: {
-    color: '#FFFFFF',
-  },
-  aiText: {
-    color: '#1F2937',
-  },
   extractedNotesSection: {
     marginTop: 12,
     paddingTop: 12,
@@ -166,10 +269,7 @@ const styles = StyleSheet.create({
     color: '#374151',
     marginBottom: 6,
   },
-  extractedNote: {
-    fontSize: 14,
-    color: '#4B5563',
-    lineHeight: 18,
+  extractedNoteItem: {
     marginBottom: 4,
   },
   saveButton: {
