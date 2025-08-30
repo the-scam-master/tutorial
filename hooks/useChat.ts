@@ -136,8 +136,15 @@ export const useChat = () => {
       const lastMessage = currentMessages[currentMessages.length - 1];
       fullResponse = lastMessage?.content || '';
       
-      // Extract key points
-      const keyPoints = AIService.extractKeyPoints(fullResponse);
+      // Extract key points using the specialized AI model
+      let keyPoints: string[] = [];
+      try {
+        keyPoints = await AIService.extractKeyPoints(fullResponse);
+      } catch (error) {
+        console.error('Error extracting key points:', error);
+        // Fallback to empty array if extraction fails
+        keyPoints = [];
+      }
       
       // Update the AI message with extracted notes
       const finalAiMessage: Message = {
