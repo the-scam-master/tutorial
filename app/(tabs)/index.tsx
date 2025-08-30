@@ -13,6 +13,7 @@ export default function ChatScreen() {
     loading, 
     apiKeySet, 
     sendMessage, 
+    saveMessageAsNote,
     clearChat, 
     startNewSession,
     setApiKey,
@@ -54,7 +55,10 @@ export default function ChatScreen() {
   };
 
   const renderMessage = ({ item }) => (
-    <ChatBubble message={item} />
+    <ChatBubble 
+      message={item} 
+      onSaveAsNote={saveMessageAsNote}
+    />
   );
 
   const EmptyState = () => (
@@ -62,7 +66,7 @@ export default function ChatScreen() {
       <MessageCircle size={64} color="#9CA3AF" />
       <Text style={styles.emptyTitle}>Welcome to AI Tutor!</Text>
       <Text style={styles.emptySubtitle}>
-        Ask me anything you'd like to learn about. I'll help you understand complex topics.
+        Ask me anything you'd like to learn about. I'll help you understand complex topics and automatically extract key points.
       </Text>
       {!apiKeySet && (
         <TouchableOpacity 
