@@ -1,3 +1,4 @@
+// hooks/useAnalytics.ts
 import { useState, useEffect } from 'react';
 import { Analytics } from '@/types';
 import { StorageService } from '@/services/storage';
@@ -19,6 +20,7 @@ export const useAnalytics = () => {
   const loadAnalytics = async () => {
     try {
       const data = await StorageService.getAnalytics();
+      console.log('Loaded analytics:', data); // Debug log
       setAnalytics(data);
     } catch (error) {
       console.error('Error loading analytics:', error);
@@ -65,7 +67,7 @@ export const useAnalytics = () => {
         color: '#10B981',
       });
     }
-
+    
     if (analytics.totalSessions > 0) {
       const avgMessages = Math.round(analytics.totalMessages / analytics.totalSessions);
       insights.push({
@@ -75,7 +77,7 @@ export const useAnalytics = () => {
         color: '#3B82F6',
       });
     }
-
+    
     const topTopic = getTopTopics(1)[0];
     if (topTopic) {
       insights.push({
@@ -85,8 +87,23 @@ export const useAnalytics = () => {
         color: '#8B5CF6',
       });
     }
-
+    
+    // Add total time spent if available
+    if (analytics.totalSessions > 0) {
+      insights.push({
+        type: 'sessions',
+        title: 'Total Sessions',
+        value: analytics.totalSessions.toString(),
+        color: '#F59E0B',
+      });
+    }
+    
     return insights;
+  };
+
+  const refreshAnalytics = async () => {
+    setLoading(true);
+    await loadAnalytics();
   };
 
   return {
@@ -95,6 +112,6 @@ export const useAnalytics = () => {
     getTopTopics,
     getRecentActivity,
     getStudyInsights,
-    refreshAnalytics: loadAnalytics,
+    refreshAnalytics,
   };
 };
