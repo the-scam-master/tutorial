@@ -42,14 +42,14 @@ export default function TabLayout() {
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
-            backgroundColor: '#ffffff',
-            borderTopColor: '#e5e7eb',
+            backgroundColor: '#FFFFFF',
+            borderTopColor: '#E5E7EB',
             borderTopWidth: 1,
             paddingTop: 8,
             paddingBottom: Platform.OS === 'ios' ? 34 : 20,
             height: Platform.OS === 'ios' ? 100 : 84,
           },
-          tabBarActiveTintColor: '#3B82F6',
+          tabBarActiveTintColor: '#6366F1',
           tabBarInactiveTintColor: '#9CA3AF',
           tabBarLabelStyle: {
             fontSize: 12,
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F9FAFB',
   },
   errorTitle: {
     fontSize: 20,
