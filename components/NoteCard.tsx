@@ -91,7 +91,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
     blockquote: {
       backgroundColor: '#F9FAFB',
       borderLeftWidth: 4,
-      borderLeftColor: '#3B82F6',
+      borderLeftColor: '#6366F1',
       paddingLeft: 16,
       marginVertical: 12,
       fontStyle: 'italic',
@@ -103,7 +103,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
       marginBottom: 8,
     },
     link: {
-      color: '#3B82F6',
+      color: '#6366F1',
       textDecorationLine: 'underline',
     },
     heading1: {
@@ -150,7 +150,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
           {note.source === 'auto' ? (
             <Bot size={14} color="#8B5CF6" />
           ) : (
-            <User size={14} color="#3B82F6" />
+            <User size={14} color="#6366F1" />
           )}
         </View>
       </View>
@@ -211,7 +211,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     marginHorizontal: 16,
     marginVertical: 8,
     borderRadius: 16,
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
     borderLeftWidth: 4,
-    borderLeftColor: '#3B82F6',
+    borderLeftColor: '#6366F1',
   },
   header: {
     flexDirection: 'row',
