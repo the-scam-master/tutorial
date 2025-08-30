@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
+import Markdown from 'react-native-markdown-display';
 import { Note } from '@/types';
 import { CreditCard as Edit3, Trash2, Check, X, Bot, User } from 'lucide-react-native';
 
@@ -45,6 +46,67 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
     );
   };
 
+  // Markdown styles for notes
+  const markdownStyles = {
+    body: {
+      fontSize: 16,
+      lineHeight: 22,
+      color: '#1F2937',
+      margin: 0,
+      padding: 0,
+    },
+    paragraph: {
+      fontSize: 16,
+      lineHeight: 22,
+      color: '#1F2937',
+      marginBottom: 8,
+      marginTop: 0,
+    },
+    strong: {
+      fontWeight: '700',
+      color: '#1F2937',
+    },
+    em: {
+      fontStyle: 'italic',
+      color: '#1F2937',
+    },
+    code_inline: {
+      backgroundColor: 'rgba(0,0,0,0.1)',
+      color: '#1F2937',
+      padding: 2,
+      borderRadius: 4,
+      fontFamily: 'monospace',
+      fontSize: 14,
+    },
+    code_block: {
+      backgroundColor: 'rgba(0,0,0,0.1)',
+      color: '#1F2937',
+      padding: 12,
+      borderRadius: 8,
+      fontFamily: 'monospace',
+      fontSize: 14,
+      marginVertical: 8,
+    },
+    blockquote: {
+      backgroundColor: 'rgba(0,0,0,0.05)',
+      borderLeftWidth: 4,
+      borderLeftColor: '#3B82F6',
+      paddingLeft: 12,
+      marginVertical: 8,
+      fontStyle: 'italic',
+    },
+    list_item: {
+      fontSize: 16,
+      lineHeight: 22,
+      color: '#1F2937',
+      marginBottom: 4,
+    },
+    link: {
+      color: '#3B82F6',
+      textDecorationLine: 'underline',
+    },
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -69,7 +131,6 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
           )}
         </View>
       </View>
-
       <View style={styles.content}>
         {isEditing ? (
           <TextInput
@@ -80,10 +141,11 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
             placeholder="Note content"
           />
         ) : (
-          <Text style={styles.contentText}>{note.content}</Text>
+          <Markdown style={markdownStyles}>
+            {note.content}
+          </Markdown>
         )}
       </View>
-
       <View style={styles.footer}>
         <Text style={styles.timestamp}>
           {new Date(note.timestamp).toLocaleDateString([], {
@@ -93,7 +155,6 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
             minute: '2-digit'
           })}
         </Text>
-
         <View style={styles.actions}>
           {isEditing ? (
             <>
