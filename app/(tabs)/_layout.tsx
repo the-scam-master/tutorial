@@ -1,3 +1,4 @@
+// app/(tabs)/_layout.tsx
 import { Tabs } from 'expo-router';
 import { MessageCircle, BookOpen, ChartBar as BarChart3 } from 'lucide-react-native';
 import { Platform } from 'react-native';
@@ -12,8 +13,8 @@ export default function TabLayout() {
           borderTopColor: '#e5e7eb',
           borderTopWidth: 1,
           paddingTop: 8,
-          paddingBottom: Platform.OS === 'ios' ? 20 : 8,
-          height: Platform.OS === 'ios' ? 88 : 68,
+          paddingBottom: Platform.OS === 'ios' ? 28 : 16, // Increased bottom padding
+          height: Platform.OS === 'ios' ? 96 : 80, // Increased height
         },
         tabBarActiveTintColor: '#3B82F6',
         tabBarInactiveTintColor: '#9CA3AF',
@@ -21,6 +22,9 @@ export default function TabLayout() {
           fontSize: 12,
           fontWeight: '600',
           marginTop: 4,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 4, // Added vertical padding
         },
       }}>
       <Tabs.Screen
