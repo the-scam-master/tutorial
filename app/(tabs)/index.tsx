@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, FlatList, Text, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, FlatList, Text, SafeAreaView, TouchableOpacity, Dimensions } from 'react-native';
 import { useChat } from '@/hooks/useChat';
 import { ChatBubble } from '@/components/ChatBubble';
 import { ChatInput } from '@/components/ChatInput';
 import { QuickActionButtons } from '@/components/QuickActionButtons';
 import { ApiKeyModal } from '@/components/ApiKeyModal';
-import { MessageCircle, RotateCcw, Settings } from 'lucide-react-native';
+import { MessageCircle, RotateCcw, Settings, Sparkles } from 'lucide-react-native';
+
+const { width } = Dimensions.get('window');
 
 export default function ChatScreen() {
   const { 
@@ -63,7 +65,9 @@ export default function ChatScreen() {
 
   const EmptyState = () => (
     <View style={styles.emptyState}>
-      <MessageCircle size={64} color="#9CA3AF" />
+      <View style={styles.emptyIconContainer}>
+        <Sparkles size={64} color="#D1D5DB" />
+      </View>
       <Text style={styles.emptyTitle}>Welcome to AI Tutor!</Text>
       <Text style={styles.emptySubtitle}>
         Ask me anything you'd like to learn about. I'll help you understand complex topics and automatically extract key points.
@@ -98,6 +102,7 @@ export default function ChatScreen() {
           )}
         </View>
       </View>
+      
       <FlatList
         ref={flatListRef}
         data={messages}
@@ -108,10 +113,13 @@ export default function ChatScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={messages.length === 0 ? styles.emptyListContent : styles.listContent}
       />
+      
       {messages.length > 0 && messages[messages.length - 1]?.role === 'user' && (
         <QuickActionButtons onAction={handleQuickAction} disabled={loading} />
       )}
+      
       <ChatInput onSend={sendMessage} disabled={loading || !apiKeySet} />
+      
       <ApiKeyModal
         visible={showApiKeyModal}
         onClose={() => setShowApiKeyModal(false)}
@@ -137,7 +145,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5E7EB',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: '700',
     color: '#1F2937',
   },
@@ -167,11 +175,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 32,
   },
+  emptyIconContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
   emptyTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
     color: '#1F2937',
-    marginTop: 16,
     marginBottom: 8,
   },
   emptySubtitle: {
@@ -185,9 +201,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#3B82F6',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderRadius: 12,
   },
   setupButtonText: {
     color: 'white',
