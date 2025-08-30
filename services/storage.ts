@@ -1,3 +1,4 @@
+// services/storage.ts
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Message, Note, StudySession, Analytics } from '@/types';
 
@@ -134,13 +135,21 @@ export class StorageService {
   static async getAnalytics(): Promise<Analytics> {
     try {
       const data = await AsyncStorage.getItem(KEYS.ANALYTICS);
-      return data ? JSON.parse(data) : {
+      const defaultAnalytics: Analytics = {
         totalSessions: 0,
         totalMessages: 0,
         streakDays: 0,
         topicFrequency: {},
         dailyActivity: {},
       };
+      
+      if (!data) {
+        // Initialize with default analytics if none exist
+        await this.updateAnalytics(defaultAnalytics);
+        return defaultAnalytics;
+      }
+      
+      return JSON.parse(data);
     } catch (error) {
       console.error('Error getting analytics:', error);
       return {
@@ -158,6 +167,7 @@ export class StorageService {
       const current = await this.getAnalytics();
       const updated = { ...current, ...updates };
       await AsyncStorage.setItem(KEYS.ANALYTICS, JSON.stringify(updated));
+      console.log('Updated analytics:', updated); // Debug log
     } catch (error) {
       console.error('Error updating analytics:', error);
     }
@@ -183,6 +193,7 @@ export class StorageService {
         topics: [],
       };
       await AsyncStorage.setItem(KEYS.CURRENT_SESSION, JSON.stringify(session));
+      console.log('Started new session:', session); // Debug log
       return session;
     } catch (error) {
       console.error('Error starting session:', error);
@@ -206,6 +217,7 @@ export class StorageService {
         
         // Update analytics
         await this.updateSessionAnalytics(session);
+        console.log('Ended session:', session); // Debug log
       }
     } catch (error) {
       console.error('Error ending session:', error);
@@ -242,6 +254,7 @@ export class StorageService {
       analytics.streakDays = this.calculateStreak(analytics.dailyActivity);
       
       await this.updateAnalytics(analytics);
+      console.log('Updated session analytics:', analytics); // Debug log
     } catch (error) {
       console.error('Error updating session analytics:', error);
     }
