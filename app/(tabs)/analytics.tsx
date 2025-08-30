@@ -1,16 +1,20 @@
+// app/(tabs)/analytics.tsx
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { AnalyticsCard } from '@/components/AnalyticsCard';
 import { ActivityChart } from '@/components/ActivityChart';
-import { TrendingUp, Target, Calendar } from 'lucide-react-native';
+import { TrendingUp, Target, Calendar, RefreshCw } from 'lucide-react-native';
 
 export default function AnalyticsScreen() {
-  const { analytics, loading, getTopTopics, getRecentActivity, getStudyInsights } = useAnalytics();
-
+  const { analytics, loading, getTopTopics, getRecentActivity, getStudyInsights, refreshAnalytics } = useAnalytics();
   const topTopics = getTopTopics(5);
   const recentActivity = getRecentActivity(7);
   const insights = getStudyInsights();
+
+  const handleRefresh = () => {
+    refreshAnalytics();
+  };
 
   if (loading) {
     return (
@@ -26,9 +30,13 @@ export default function AnalyticsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Study Analytics</Text>
-        <TrendingUp size={24} color="#3B82F6" />
+        <View style={styles.headerActions}>
+          <TouchableOpacity onPress={handleRefresh} style={styles.refreshButton}>
+            <RefreshCw size={20} color="#3B82F6" />
+          </TouchableOpacity>
+          <TrendingUp size={24} color="#3B82F6" />
+        </View>
       </View>
-
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Key Insights */}
         <View style={styles.section}>
@@ -119,6 +127,16 @@ export default function AnalyticsScreen() {
             />
           </View>
         )}
+
+        {/* Debug Info - Remove in production */}
+        <View style={styles.debugSection}>
+          <Text style={styles.debugTitle}>Debug Info</Text>
+          <Text style={styles.debugText}>Total Sessions: {analytics.totalSessions}</Text>
+          <Text style={styles.debugText}>Total Messages: {analytics.totalMessages}</Text>
+          <Text style={styles.debugText}>Streak Days: {analytics.streakDays}</Text>
+          <Text style={styles.debugText}>Topics: {Object.keys(analytics.topicFrequency).length}</Text>
+          <Text style={styles.debugText}>Activity Days: {Object.keys(analytics.dailyActivity).length}</Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -143,6 +161,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: '#1F2937',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  refreshButton: {
+    padding: 8,
+    marginRight: 8,
   },
   content: {
     flex: 1,
@@ -205,5 +231,23 @@ const styles = StyleSheet.create({
   topicCount: {
     fontSize: 14,
     color: '#6B7280',
+  },
+  debugSection: {
+    backgroundColor: '#F3F4F6',
+    padding: 16,
+    marginHorizontal: 16,
+    marginVertical: 24,
+    borderRadius: 8,
+  },
+  debugTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 8,
+  },
+  debugText: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginBottom: 4,
   },
 });
