@@ -3,16 +3,6 @@ export interface Message {
   content: string;
   role: 'user' | 'assistant';
   timestamp: Date;
-  extractedNotes?: string[];
-}
-
-export interface Note {
-  id: string;
-  content: string;
-  topic: string;
-  timestamp: Date;
-  source?: 'auto' | 'manual';
-  chatMessageId?: string;
 }
 
 export interface StudySession {
