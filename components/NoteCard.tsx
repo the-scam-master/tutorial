@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Dimensions } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 import { Note } from '@/types';
-import { CreditCard as Edit3, Trash2, Check, X, Bot, User } from 'lucide-react-native';
+import { Edit3, Trash2, Check, X, Bot, User } from 'lucide-react-native';
+
+const { width } = Dimensions.get('window');
 
 interface NoteCardProps {
   note: Note;
@@ -46,20 +48,19 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
     );
   };
 
-  // Markdown styles for notes
   const markdownStyles = {
     body: {
       fontSize: 16,
-      lineHeight: 22,
+      lineHeight: 24,
       color: '#1F2937',
       margin: 0,
       padding: 0,
     },
     paragraph: {
       fontSize: 16,
-      lineHeight: 22,
+      lineHeight: 24,
       color: '#1F2937',
-      marginBottom: 8,
+      marginBottom: 12,
       marginTop: 0,
     },
     strong: {
@@ -71,35 +72,35 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
       color: '#1F2937',
     },
     code_inline: {
-      backgroundColor: 'rgba(0,0,0,0.1)',
+      backgroundColor: '#F3F4F6',
       color: '#1F2937',
-      padding: 2,
-      borderRadius: 4,
+      padding: 4,
+      borderRadius: 6,
       fontFamily: 'monospace',
       fontSize: 14,
     },
     code_block: {
-      backgroundColor: 'rgba(0,0,0,0.1)',
+      backgroundColor: '#F3F4F6',
       color: '#1F2937',
-      padding: 12,
+      padding: 16,
       borderRadius: 8,
       fontFamily: 'monospace',
       fontSize: 14,
-      marginVertical: 8,
+      marginVertical: 12,
     },
     blockquote: {
-      backgroundColor: 'rgba(0,0,0,0.05)',
+      backgroundColor: '#F9FAFB',
       borderLeftWidth: 4,
       borderLeftColor: '#3B82F6',
-      paddingLeft: 12,
-      marginVertical: 8,
+      paddingLeft: 16,
+      marginVertical: 12,
       fontStyle: 'italic',
     },
     list_item: {
       fontSize: 16,
-      lineHeight: 22,
+      lineHeight: 24,
       color: '#1F2937',
-      marginBottom: 4,
+      marginBottom: 8,
     },
     link: {
       color: '#3B82F6',
@@ -109,22 +110,22 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
       fontSize: 24,
       fontWeight: '700',
       color: '#1F2937',
-      marginBottom: 8,
-      marginTop: 8,
+      marginBottom: 12,
+      marginTop: 12,
     },
     heading2: {
       fontSize: 20,
       fontWeight: '600',
       color: '#1F2937',
-      marginBottom: 6,
-      marginTop: 6,
+      marginBottom: 8,
+      marginTop: 8,
     },
     heading3: {
       fontSize: 18,
       fontWeight: '600',
       color: '#1F2937',
-      marginBottom: 4,
-      marginTop: 4,
+      marginBottom: 6,
+      marginTop: 6,
     },
   };
 
@@ -138,6 +139,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
               value={editedTopic}
               onChangeText={setEditedTopic}
               placeholder="Topic"
+              placeholderTextColor="#9CA3AF"
             />
           ) : (
             <Text style={styles.topic}>{note.topic}</Text>
@@ -152,6 +154,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
           )}
         </View>
       </View>
+      
       <View style={styles.content}>
         {isEditing ? (
           <TextInput
@@ -160,6 +163,8 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
             onChangeText={setEditedContent}
             multiline
             placeholder="Note content"
+            placeholderTextColor="#9CA3AF"
+            textAlignVertical="top"
           />
         ) : (
           <Markdown style={markdownStyles}>
@@ -167,6 +172,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
           </Markdown>
         )}
       </View>
+      
       <View style={styles.footer}>
         <Text style={styles.timestamp}>
           {new Date(note.timestamp).toLocaleDateString([], {
@@ -176,6 +182,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
             minute: '2-digit'
           })}
         </Text>
+        
         <View style={styles.actions}>
           {isEditing ? (
             <>
@@ -206,55 +213,55 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
     marginHorizontal: 16,
-    marginVertical: 6,
-    borderRadius: 12,
-    padding: 16,
+    marginVertical: 8,
+    borderRadius: 16,
+    padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
     elevation: 3,
-    borderLeftWidth: 3,
+    borderLeftWidth: 4,
     borderLeftColor: '#3B82F6',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   topicContainer: {
     flex: 1,
   },
   topic: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1F2937',
   },
   topicInput: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-    borderBottomWidth: 1,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1F2937',
+    borderBottomWidth: 2,
     borderBottomColor: '#D1D5DB',
-    paddingVertical: 2,
+    paddingVertical: 4,
   },
   sourceIndicator: {
-    marginLeft: 8,
+    marginLeft: 12,
   },
   content: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   contentInput: {
     fontSize: 16,
-    lineHeight: 22,
+    lineHeight: 24,
     color: '#1F2937',
     borderWidth: 1,
     borderColor: '#D1D5DB',
-    borderRadius: 8,
-    padding: 12,
+    borderRadius: 12,
+    padding: 16,
     textAlignVertical: 'top',
-    minHeight: 80,
+    minHeight: 100,
   },
   footer: {
     flexDirection: 'row',
@@ -271,5 +278,7 @@ const styles = StyleSheet.create({
   actionButton: {
     padding: 8,
     marginLeft: 4,
+    borderRadius: 8,
+    backgroundColor: '#F9FAFB',
   },
 });
