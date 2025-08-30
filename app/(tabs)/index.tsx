@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, FlatList, Text, SafeAreaView, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { View, StyleSheet, FlatList, Text, SafeAreaView, TouchableOpacity, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
 import { useChat } from '@/hooks/useChat';
 import { ChatBubble } from '@/components/ChatBubble';
 import { ChatInput } from '@/components/ChatInput';
@@ -22,6 +22,8 @@ export default function ChatScreen() {
     setShowApiKeyModal
   } = useChat();
   const flatListRef = useRef<FlatList>(null);
+  const [contentHeight, setContentHeight] = useState(0);
+  const [listHeight, setListHeight] = useState(0);
 
   useEffect(() => {
     if (!apiKeySet) {
@@ -29,33 +31,35 @@ export default function ChatScreen() {
     }
   }, [apiKeySet]);
 
+  // Optimized scroll to bottom
   useEffect(() => {
-    if (messages.length > 0) {
-      setTimeout(() => {
+    if (messages.length > 0 && flatListRef.current) {
+      const timeout = setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
       }, 100);
+      return () => clearTimeout(timeout);
     }
   }, [messages]);
 
-  const handleQuickAction = (action: string, label: string) => {
+  const handleQuickAction = useCallback((action: string, label: string) => {
     const lastUserMessage = [...messages].reverse().find(m => m.role === 'user');
     if (lastUserMessage) {
       sendMessage(lastUserMessage.content, action);
     }
-  };
+  }, [messages, sendMessage]);
 
-  const handleApiKeySave = async (apiKey: string) => {
+  const handleApiKeySave = useCallback(async (apiKey: string) => {
     try {
       await setApiKey(apiKey);
       setShowApiKeyModal(false);
     } catch (error) {
       console.error('Failed to save API key:', error);
     }
-  };
+  }, [setApiKey]);
 
-  const renderMessage = ({ item }) => (
+  const renderMessage = useCallback(({ item }) => (
     <ChatBubble message={item} />
-  );
+  ), []);
 
   const EmptyState = () => (
     <View style={styles.emptyState}>
@@ -78,6 +82,22 @@ export default function ChatScreen() {
     </View>
   );
 
+  const handleContentSizeChange = useCallback((contentWidth, contentHeight) => {
+    setContentHeight(contentHeight);
+  }, []);
+
+  const handleLayout = useCallback((event) => {
+    const { height } = event.nativeEvent.layout;
+    setListHeight(height);
+  }, []);
+
+  // Check if we need to scroll to bottom
+  useEffect(() => {
+    if (contentHeight > 0 && listHeight > 0 && contentHeight > listHeight) {
+      flatListRef.current?.scrollToEnd({ animated: false });
+    }
+  }, [contentHeight, listHeight]);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -97,22 +117,38 @@ export default function ChatScreen() {
         </View>
       </View>
       
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
-        style={styles.messagesList}
-        ListEmptyComponent={EmptyState}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={messages.length === 0 ? styles.emptyListContent : styles.listContent}
-      />
+      <View style={styles.messagesContainer}>
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderMessage}
+          keyExtractor={(item) => item.id}
+          style={styles.messagesList}
+          ListEmptyComponent={EmptyState}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={messages.length === 0 ? styles.emptyListContent : styles.listContent}
+          onContentSizeChange={handleContentSizeChange}
+          onLayout={handleLayout}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+          initialNumToRender={10}
+          getItemLayout={(data, index) => (
+            { length: 100, offset: 100 * index, index }
+          )}
+        />
+      </View>
       
       {messages.length > 0 && messages[messages.length - 1]?.role === 'user' && (
         <QuickActionButtons onAction={handleQuickAction} disabled={loading} />
       )}
       
-      <ChatInput onSend={sendMessage} disabled={loading || !apiKeySet} />
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.inputContainer}
+      >
+        <ChatInput onSend={sendMessage} disabled={loading || !apiKeySet} />
+      </KeyboardAvoidingView>
       
       <ApiKeyModal
         visible={showApiKeyModal}
@@ -154,9 +190,11 @@ const styles = StyleSheet.create({
   clearButton: {
     padding: 8,
   },
+  messagesContainer: {
+    flex: 1,
+  },
   messagesList: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
   },
   listContent: {
     paddingVertical: 16,
@@ -204,5 +242,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,
+  },
+  inputContainer: {
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
   },
 });
