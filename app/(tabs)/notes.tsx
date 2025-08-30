@@ -17,7 +17,6 @@ export default function NotesScreen() {
   const { notes, loading, updateNote, deleteNote, addNote, getTopicGroups } = useNotes();
   const [showAddModal, setShowAddModal] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grouped'>('list');
-
   const topicGroups = getTopicGroups();
   const sectionData = Object.entries(topicGroups).map(([topic, notes]) => ({
     title: topic,
@@ -70,7 +69,6 @@ export default function NotesScreen() {
           </TouchableOpacity>
         </View>
       </View>
-
       {notes.length === 0 ? (
         <EmptyState />
       ) : viewMode === 'list' ? (
@@ -93,7 +91,6 @@ export default function NotesScreen() {
           showsVerticalScrollIndicator={false}
         />
       )}
-
       <AddNoteModal
         visible={showAddModal}
         onClose={() => setShowAddModal(false)}
@@ -101,7 +98,7 @@ export default function NotesScreen() {
       />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
