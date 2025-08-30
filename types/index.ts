@@ -3,7 +3,6 @@ export interface Message {
   content: string;
   role: 'user' | 'assistant';
   timestamp: Date;
-  extractedNotes?: string[];
 }
 
 export interface Note {
