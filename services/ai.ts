@@ -4,6 +4,7 @@ import { StorageService } from './storage';
 export class AIService {
   private static genAI: GoogleGenerativeAI | null = null;
   private static model: any = null;
+  private static extractionModel: any = null;
 
   static async initializeAI(): Promise<boolean> {
     try {
@@ -13,6 +14,7 @@ export class AIService {
       }
       this.genAI = new GoogleGenerativeAI(apiKey);
       this.model = this.genAI.getGenerativeModel({ model: 'gemma-3-27b-it' });
+      this.extractionModel = this.genAI.getGenerativeModel({ model: 'gemma-3n-e2b-it' });
       return true;
     } catch (error) {
       console.error('Error initializing AI:', error);
@@ -96,103 +98,76 @@ export class AIService {
     }
   }
 
-  static extractKeyPoints(content: string): string[] {
-    // Improved extraction logic
-    const keyPoints: string[] = [];
-    
-    // Split content into sections by headers
-    const sections = content.split(/(?=#{1,6}\s)/);
-    
-    sections.forEach(section => {
-      // Extract headers
-      const headerMatch = section.match(/^(#{1,6})\s+(.+)$/m);
-      const header = headerMatch ? headerMatch[2] : '';
+  static async extractKeyPoints(content: string): Promise<string[]> {
+    try {
+      // Check if extraction model is initialized
+      if (!this.extractionModel) {
+        const initialized = await this.initializeAI();
+        if (!initialized) {
+          return [];
+        }
+      }
+
+      // Create a prompt specifically for key point extraction
+      const extractionPrompt = `
+You are an expert at extracting key points from educational content. 
+Analyze the following text and extract the 3-5 most important key points that would be useful for studying.
+
+Requirements:
+- Each key point should be a complete sentence or phrase
+- Key points should capture the most important concepts
+- Focus on definitions, important facts, and critical concepts
+- Do not include examples or explanations in the key points
+- Return only the key points as a numbered list (1, 2, 3...)
+
+Text to analyze:
+${content}
+
+Key Points:
+`;
+
+      // Generate key points using the specialized extraction model
+      const result = await this.extractionModel.generateContent(extractionPrompt);
+      const responseText = result.response.text();
       
-      // Extract lists (both ordered and unordered)
-      const listItems = section.match(/^[\s]*[-*+]\s+(.+)$/gm) || 
-                       section.match(/^[\s]*\d+\.\s+(.+)$/gm) || [];
+      // Parse the numbered list response
+      const keyPoints: string[] = [];
+      const lines = responseText.split('\n');
       
-      // Extract bold or emphasized text
-      const boldText = section.match(/\*\*(.+?)\*\*/g) || 
-                      section.match(/\_\_(.+?)\_\_/g) || 
-                      section.match(/\*(.+?)\*/g) || 
-                      section.match(/\_(.+?)\_/g) || [];
-      
-      // Extract code blocks
-      const codeBlocks = section.match(/```[\s\S]*?```/g) || [];
-      
-      // Extract blockquotes
-      const blockquotes = section.match(/^>\s+(.+)$/gm) || [];
-      
-      // Add header as a key point if it exists
-      if (header && header.length > 10 && header.length < 100) {
-        keyPoints.push(header);
+      for (const line of lines) {
+        // Match numbered list items (1., 2., 3., etc.)
+        const match = line.match(/^(\d+)\.\s*(.+)$/);
+        if (match && match[2]) {
+          keyPoints.push(match[2].trim());
+        }
       }
       
-      // Add list items as key points
-      listItems.forEach(item => {
-        const cleanedItem = item.replace(/^[\s]*[-*+\d.]\s+/, '');
-        if (cleanedItem.length > 10 && cleanedItem.length < 100) {
-          keyPoints.push(cleanedItem);
-        }
-      });
-      
-      // Add bold text as key points
-      boldText.forEach(text => {
-        const cleanedText = text.replace(/\*\*|\_\_|\*|\_/g, '');
-        if (cleanedText.length > 10 && cleanedText.length < 100) {
-          keyPoints.push(cleanedText);
-        }
-      });
-      
-      // Add code blocks as key points
-      codeBlocks.forEach(block => {
-        const cleanedBlock = block.replace(/```[\s]*|```/g, '');
-        if (cleanedBlock.length > 10 && cleanedBlock.length < 100) {
-          keyPoints.push(`Code: ${cleanedBlock}`);
-        }
-      });
-      
-      // Add blockquotes as key points
-      blockquotes.forEach(quote => {
-        const cleanedQuote = quote.replace(/^>\s+/, '');
-        if (cleanedQuote.length > 10 && cleanedQuote.length < 100) {
-          keyPoints.push(`Quote: ${cleanedQuote}`);
-        }
-      });
-    });
-    
-    // If no structured content found, extract sentences with keywords
-    if (keyPoints.length === 0) {
-      const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 15);
-      const keywords = [
-        'important', 'key', 'essential', 'critical', 'significant', 
-        'remember', 'note', 'concept', 'principle', 'rule', 'definition',
-        'must', 'should', 'always', 'never', 'crucial', 'vital'
-      ];
-      
-      sentences.forEach(sentence => {
-        const trimmed = sentence.trim();
-        const hasKeyword = keywords.some(keyword => 
-          trimmed.toLowerCase().includes(keyword)
-        );
+      // If we didn't get a proper numbered list, try to extract sentences that look important
+      if (keyPoints.length === 0) {
+        const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 15);
+        const keywords = [
+          'important', 'key', 'essential', 'critical', 'significant', 
+          'remember', 'note', 'concept', 'principle', 'rule', 'definition',
+          'must', 'should', 'always', 'never', 'crucial', 'vital'
+        ];
         
-        // Include sentences with keywords or longer sentences that might be important
-        if (hasKeyword || (trimmed.length > 40 && trimmed.length < 120)) {
-          keyPoints.push(trimmed);
-        }
-      });
+        sentences.forEach(sentence => {
+          const trimmed = sentence.trim();
+          const hasKeyword = keywords.some(keyword => 
+            trimmed.toLowerCase().includes(keyword)
+          );
+          
+          if (hasKeyword && keyPoints.length < 5) {
+            keyPoints.push(trimmed);
+          }
+        });
+      }
+      
+      return keyPoints.slice(0, 5); // Limit to 5 key points
+    } catch (error) {
+      console.error('Error extracting key points:', error);
+      return [];
     }
-    
-    // Remove duplicates and limit to 5 key points
-    const uniquePoints = [...new Set(keyPoints)];
-    
-    // Filter out points that are too short or too long
-    const filteredPoints = uniquePoints.filter(point => 
-      point.length > 10 && point.length < 120
-    );
-    
-    return filteredPoints.slice(0, 5);
   }
 
   static extractTopic(content: string): string {
