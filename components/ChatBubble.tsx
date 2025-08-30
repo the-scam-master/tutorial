@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 import { Message } from '@/types';
 import { User, Bot } from 'lucide-react-native';
