@@ -26,7 +26,7 @@ export const useNotes = () => {
   const updateNote = async (noteId: string, updates: Partial<Note>) => {
     try {
       await StorageService.updateNote(noteId, updates);
-      await loadNotes(); // Refresh the list
+      await loadNotes();
     } catch (error) {
       console.error('Error updating note:', error);
     }
@@ -51,7 +51,7 @@ export const useNotes = () => {
         source: 'manual',
       };
       await StorageService.addNote(note);
-      await loadNotes(); // Refresh the list
+      await loadNotes();
     } catch (error) {
       console.error('Error adding note:', error);
     }
