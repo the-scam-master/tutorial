@@ -125,7 +125,7 @@ export class AIService {
       const blockquotes = section.match(/^>\s+(.+)$/gm) || [];
       
       // Add header as a key point if it exists
-      if (header && header.length > 10) {
+      if (header && header.length > 10 && header.length < 100) {
         keyPoints.push(header);
       }
       
@@ -168,7 +168,7 @@ export class AIService {
       const keywords = [
         'important', 'key', 'essential', 'critical', 'significant', 
         'remember', 'note', 'concept', 'principle', 'rule', 'definition',
-        'must', 'should', 'always', 'never'
+        'must', 'should', 'always', 'never', 'crucial', 'vital'
       ];
       
       sentences.forEach(sentence => {
@@ -177,7 +177,8 @@ export class AIService {
           trimmed.toLowerCase().includes(keyword)
         );
         
-        if (hasKeyword || trimmed.length > 60) {
+        // Include sentences with keywords or longer sentences that might be important
+        if (hasKeyword || (trimmed.length > 40 && trimmed.length < 120)) {
           keyPoints.push(trimmed);
         }
       });
@@ -185,7 +186,13 @@ export class AIService {
     
     // Remove duplicates and limit to 5 key points
     const uniquePoints = [...new Set(keyPoints)];
-    return uniquePoints.slice(0, 5);
+    
+    // Filter out points that are too short or too long
+    const filteredPoints = uniquePoints.filter(point => 
+      point.length > 10 && point.length < 120
+    );
+    
+    return filteredPoints.slice(0, 5);
   }
 
   static extractTopic(content: string): string {
