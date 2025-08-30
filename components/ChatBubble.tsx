@@ -1,3 +1,4 @@
+// components/ChatBubble.tsx
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 import Markdown from 'react-native-markdown-display';
@@ -20,27 +21,6 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote })
       color: isUser ? '#FFFFFF' : '#1F2937',
       margin: 0,
       padding: 0,
-    },
-    heading1: {
-      fontSize: 20,
-      fontWeight: '700',
-      color: isUser ? '#FFFFFF' : '#1F2937',
-      marginBottom: 8,
-      marginTop: 8,
-    },
-    heading2: {
-      fontSize: 18,
-      fontWeight: '600',
-      color: isUser ? '#FFFFFF' : '#1F2937',
-      marginBottom: 6,
-      marginTop: 6,
-    },
-    heading3: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: isUser ? '#FFFFFF' : '#1F2937',
-      marginBottom: 4,
-      marginTop: 4,
     },
     paragraph: {
       fontSize: 16,
@@ -74,15 +54,6 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote })
       fontSize: 14,
       marginVertical: 8,
     },
-    fence: {
-      backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
-      color: isUser ? '#FFFFFF' : '#1F2937',
-      padding: 12,
-      borderRadius: 8,
-      fontFamily: 'monospace',
-      fontSize: 14,
-      marginVertical: 8,
-    },
     blockquote: {
       backgroundColor: isUser ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
       borderLeftWidth: 4,
@@ -107,19 +78,39 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote })
       color: isUser ? '#93C5FD' : '#3B82F6',
       textDecorationLine: 'underline',
     },
-    table: {
-      borderWidth: 1,
-      borderColor: isUser ? 'rgba(255,255,255,0.3)' : '#E5E7EB',
-      marginVertical: 8,
+  };
+
+  // Styles for extracted notes
+  const extractedNotesStyles = {
+    body: {
+      fontSize: 14,
+      lineHeight: 18,
+      color: isUser ? '#E5E7EB' : '#4B5563',
+      margin: 0,
+      padding: 0,
     },
-    table_header: {
-      backgroundColor: isUser ? 'rgba(255,255,255,0.1)' : '#F3F4F6',
+    paragraph: {
+      fontSize: 14,
+      lineHeight: 18,
+      color: isUser ? '#E5E7EB' : '#4B5563',
+      marginBottom: 4,
+      marginTop: 0,
+    },
+    strong: {
       fontWeight: '600',
+      color: isUser ? '#E5E7EB' : '#4B5563',
     },
-    table_cell: {
-      borderWidth: 1,
-      borderColor: isUser ? 'rgba(255,255,255,0.3)' : '#E5E7EB',
-      padding: 8,
+    em: {
+      fontStyle: 'italic',
+      color: isUser ? '#E5E7EB' : '#4B5563',
+    },
+    code_inline: {
+      backgroundColor: isUser ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.05)',
+      color: isUser ? '#E5E7EB' : '#4B5563',
+      padding: 2,
+      borderRadius: 4,
+      fontFamily: 'monospace',
+      fontSize: 12,
     },
   };
 
@@ -138,7 +129,6 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote })
         
         <View style={styles.messageSection}>
           <View style={[styles.bubble, isUser ? styles.userBubble : styles.aiBubble]}>
-            {/* Replace Text with Markdown component */}
             <Markdown style={markdownStyles}>
               {message.content}
             </Markdown>
@@ -147,9 +137,11 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message, onSaveAsNote })
               <View style={styles.extractedNotesSection}>
                 <Text style={styles.extractedNotesTitle}>📝 Auto-extracted notes:</Text>
                 {message.extractedNotes.map((note, index) => (
-                  <Text key={index} style={styles.extractedNote}>
-                    • {note}
-                  </Text>
+                  <View key={index} style={styles.extractedNoteItem}>
+                    <Markdown style={extractedNotesStyles}>
+                      {`• ${note}`}
+                    </Markdown>
+                  </View>
                 ))}
               </View>
             )}
@@ -243,10 +235,7 @@ const styles = StyleSheet.create({
     color: '#374151',
     marginBottom: 6,
   },
-  extractedNote: {
-    fontSize: 14,
-    color: '#6B7280',
-    lineHeight: 18,
+  extractedNoteItem: {
     marginBottom: 4,
   },
   saveButton: {
