@@ -68,13 +68,20 @@ export class AIService {
       const result = await this.model.generateContent(fullPrompt);
       const response = result.response;
       
-      // Get the streaming response
-      let fullText = '';
-      for await (const chunk of response.stream) {
-        const chunkText = chunk.text();
-        fullText += chunkText;
-        if (onStreamUpdate) {
-          onStreamUpdate(fullText);
+      // Get the full text response (not streaming for now due to compatibility issues)
+      const fullText = response.text();
+      
+      // Simulate streaming by breaking the text into chunks and calling the callback
+      if (onStreamUpdate) {
+        const words = fullText.split(' ');
+        let currentText = '';
+        
+        for (const word of words) {
+          currentText += (currentText ? ' ' : '') + word;
+          onStreamUpdate(currentText);
+          
+          // Add a small delay to simulate streaming
+          await new Promise(resolve => setTimeout(resolve, 20));
         }
       }
       
