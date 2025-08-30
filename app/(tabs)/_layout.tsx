@@ -1,9 +1,8 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { MessageCircle, BookOpen, ChartBar as BarChart3 } from 'lucide-react-native';
+import { MessageCircle, BookOpen } from 'lucide-react-native';
 import { Platform, View, Text, StyleSheet } from 'react-native';
 
-// Error Boundary component to catch JavaScript errors
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { hasError: boolean; error?: Error }
@@ -32,7 +31,6 @@ class ErrorBoundary extends React.Component<
         </View>
       );
     }
-
     return this.props.children;
   }
 }
@@ -78,15 +76,6 @@ export default function TabLayout() {
             title: 'Notes',
             tabBarIcon: ({ size, color }) => (
               <BookOpen size={size} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="analytics"
-          options={{
-            title: 'Analytics',
-            tabBarIcon: ({ size, color }) => (
-              <BarChart3 size={size} color={color} />
             ),
           }}
         />
