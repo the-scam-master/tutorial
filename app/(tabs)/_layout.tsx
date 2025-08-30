@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { MessageCircle, ChartBar as BarChart3 } from 'lucide-react-native';
+import { MessageCircle, BookOpen, ChartBar as BarChart3 } from 'lucide-react-native';
 import { Platform } from 'react-native';
 
 export default function TabLayout() {
@@ -33,6 +33,15 @@ export default function TabLayout() {
           title: 'Chat',
           tabBarIcon: ({ size, color }) => (
             <MessageCircle size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="notes"
+        options={{
+          title: 'Notes',
+          tabBarIcon: ({ size, color }) => (
+            <BookOpen size={size} color={color} />
           ),
         }}
       />
