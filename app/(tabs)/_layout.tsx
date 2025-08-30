@@ -31,6 +31,12 @@ export default function TabLayout() {
             <MessageCircle size={size} color={color} />
           ),
         }}
+        listeners={{
+          tabPress: (e) => {
+            // Prevent default behavior to keep chat state
+            // Chat will only reset when starting a new session explicitly
+          },
+        }}
       />
       <Tabs.Screen
         name="notes"

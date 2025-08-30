@@ -7,9 +7,58 @@ const KEYS = {
   SESSIONS: 'tutor_sessions',
   ANALYTICS: 'tutor_analytics',
   CURRENT_SESSION: 'tutor_current_session',
+  API_KEY: 'tutor_api_key',
+  CONVERSATION_MEMORY: 'tutor_conversation_memory',
 };
 
 export class StorageService {
+  // API Key Management
+  static async getApiKey(): Promise<string | null> {
+    try {
+      return await AsyncStorage.getItem(KEYS.API_KEY);
+    } catch (error) {
+      console.error('Error getting API key:', error);
+      return null;
+    }
+  }
+
+  static async setApiKey(apiKey: string): Promise<void> {
+    try {
+      await AsyncStorage.setItem(KEYS.API_KEY, apiKey);
+    } catch (error) {
+      console.error('Error setting API key:', error);
+    }
+  }
+
+  // Conversation Memory Management
+  static async getConversationMemory(): Promise<Array<{ role: string; content: string }>> {
+    try {
+      const data = await AsyncStorage.getItem(KEYS.CONVERSATION_MEMORY);
+      return data ? JSON.parse(data) : [];
+    } catch (error) {
+      console.error('Error getting conversation memory:', error);
+      return [];
+    }
+  }
+
+  static async updateConversationMemory(messages: Array<{ role: string; content: string }>): Promise<void> {
+    try {
+      // Keep only last 20 messages for memory efficiency
+      const recentMessages = messages.slice(-20);
+      await AsyncStorage.setItem(KEYS.CONVERSATION_MEMORY, JSON.stringify(recentMessages));
+    } catch (error) {
+      console.error('Error updating conversation memory:', error);
+    }
+  }
+
+  static async clearConversationMemory(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(KEYS.CONVERSATION_MEMORY);
+    } catch (error) {
+      console.error('Error clearing conversation memory:', error);
+    }
+  }
+
   // Messages
   static async getMessages(): Promise<Message[]> {
     try {

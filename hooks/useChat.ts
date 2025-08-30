@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Message, Note } from '@/types';
 import { StorageService } from '@/services/storage';
 import { AIService } from '@/services/ai';
@@ -7,27 +7,73 @@ export const useChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentSession, setCurrentSession] = useState(null);
+  const [apiKeySet, setApiKeySet] = useState(false);
+  const isMounted = useRef(true);
 
   useEffect(() => {
+    isMounted.current = true;
     loadMessages();
     initializeSession();
+    checkApiKey();
+
+    return () => {
+      isMounted.current = false;
+    };
   }, []);
 
+  const checkApiKey = async () => {
+    try {
+      const apiKey = await StorageService.getApiKey();
+      if (isMounted.current) {
+        setApiKeySet(!!apiKey);
+      }
+    } catch (error) {
+      console.error('Error checking API key:', error);
+    }
+  };
+
   const loadMessages = async () => {
-    const savedMessages = await StorageService.getMessages();
-    setMessages(savedMessages);
+    try {
+      const savedMessages = await StorageService.getMessages();
+      if (isMounted.current) {
+        setMessages(savedMessages);
+      }
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    }
   };
 
   const initializeSession = async () => {
-    let session = await StorageService.getCurrentSession();
-    if (!session) {
-      session = await StorageService.startSession();
+    try {
+      let session = await StorageService.getCurrentSession();
+      if (!session) {
+        session = await StorageService.startSession();
+      }
+      if (isMounted.current) {
+        setCurrentSession(session);
+      }
+    } catch (error) {
+      console.error('Error initializing session:', error);
     }
-    setCurrentSession(session);
+  };
+
+  const setApiKey = async (apiKey: string) => {
+    try {
+      await StorageService.setApiKey(apiKey);
+      if (isMounted.current) {
+        setApiKeySet(true);
+      }
+    } catch (error) {
+      console.error('Error setting API key:', error);
+    }
   };
 
   const sendMessage = useCallback(async (content: string, quickAction?: string) => {
-    if (!content.trim()) return;
+    if (!content.trim() || !isMounted.current) return;
+
+    if (!apiKeySet) {
+      return;
+    }
 
     setLoading(true);
     
@@ -42,7 +88,9 @@ export const useChat = () => {
 
       // Add user message immediately
       const newMessages = [...messages, userMessage];
-      setMessages(newMessages);
+      if (isMounted.current) {
+        setMessages(newMessages);
+      }
 
       // Generate AI response
       const conversationHistory = newMessages.slice(-10); // Last 10 messages for context
@@ -50,6 +98,8 @@ export const useChat = () => {
         conversationHistory.map(m => ({ role: m.role, content: m.content })),
         quickAction
       );
+
+      if (!isMounted.current) return;
 
       // Create AI message
       const aiMessage: Message = {
@@ -81,8 +131,10 @@ export const useChat = () => {
 
       // Update messages
       const finalMessages = [...newMessages, aiMessage];
-      setMessages(finalMessages);
-      await StorageService.saveMessages(finalMessages);
+      if (isMounted.current) {
+        setMessages(finalMessages);
+        await StorageService.saveMessages(finalMessages);
+      }
 
       // Update session analytics
       const session = await StorageService.getCurrentSession();
@@ -96,6 +148,8 @@ export const useChat = () => {
 
     } catch (error) {
       console.error('Error sending message:', error);
+      if (!isMounted.current) return;
+      
       // Add error message
       const errorMessage: Message = {
         id: Date.now().toString(),
@@ -105,9 +159,11 @@ export const useChat = () => {
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
-      setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
-  }, [messages]);
+  }, [messages, apiKeySet]);
 
   const saveMessageAsNote = async (messageId: string) => {
     try {
@@ -132,7 +188,10 @@ export const useChat = () => {
   const clearChat = async () => {
     try {
       await StorageService.endSession();
-      setMessages([]);
+      await StorageService.clearConversationMemory();
+      if (isMounted.current) {
+        setMessages([]);
+      }
       await StorageService.saveMessages([]);
       await initializeSession();
     } catch (error) {
@@ -140,11 +199,27 @@ export const useChat = () => {
     }
   };
 
+  const startNewSession = async () => {
+    try {
+      await StorageService.endSession();
+      if (isMounted.current) {
+        setMessages([]);
+      }
+      await StorageService.saveMessages([]);
+      await initializeSession();
+    } catch (error) {
+      console.error('Error starting new session:', error);
+    }
+  };
+
   return {
     messages,
     loading,
+    apiKeySet,
     sendMessage,
     saveMessageAsNote,
     clearChat,
+    startNewSession,
+    setApiKey,
   };
 };
