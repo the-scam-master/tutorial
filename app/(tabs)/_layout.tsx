@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { MessageCircle, BookOpen, Moon, Sun } from 'lucide-react-native';
+import { MessageCircle, BookOpen } from 'lucide-react-native';
 import { Platform, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useThemeColors } from '@/hooks/useThemeColors';
@@ -82,24 +82,6 @@ export default function TabLayout() {
             ),
           }}
         />
-        <Tabs.Screen
-          name="theme-toggle"
-          options={{
-            title: 'Theme',
-            tabBarIcon: ({ size, color }) => (
-              theme === 'light' ? <Moon size={size} color={color} /> : <Sun size={size} color={color} />
-            ),
-            tabBarButton: () => (
-              <TouchableOpacity onPress={toggleTheme} style={styles.themeButton}>
-                {theme === 'light' ? (
-                  <Moon size={24} color={colors.text} />
-                ) : (
-                  <Sun size={24} color={colors.text} />
-                )}
-              </TouchableOpacity>
-            ),
-          }}
-        />
       </Tabs>
     </ErrorBoundary>
   );
@@ -123,11 +105,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#6B7280',
     textAlign: 'center',
-  },
-  themeButton: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 8,
   },
 });
