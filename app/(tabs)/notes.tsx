@@ -14,10 +14,12 @@ import { useNotes } from '@/hooks/useNotes';
 import { NoteCard } from '@/components/NoteCard';
 import { AddNoteModal } from '@/components/AddNoteModal';
 import { BookOpen, Plus, LayoutList, Grid } from 'lucide-react-native';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 const { width } = Dimensions.get('window');
 
 export default function NotesScreen() {
+  const colors = useThemeColors();
   const { notes, loading, updateNote, deleteNote, addNote, getTopicGroups } = useNotes();
   const [showAddModal, setShowAddModal] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grouped'>('list');
@@ -30,19 +32,19 @@ export default function NotesScreen() {
 
   const EmptyState = () => (
     <View style={styles.emptyState}>
-      <View style={styles.emptyIconContainer}>
-        <BookOpen size={64} color="#D1D5DB" />
+      <View style={[styles.emptyIconContainer, { backgroundColor: colors.surfaceVariant }]}>
+        <BookOpen size={64} color={colors.primary} />
       </View>
-      <Text style={styles.emptyTitle}>No Notes Yet</Text>
-      <Text style={styles.emptySubtitle}>
+      <Text style={[styles.emptyTitle, { color: colors.text }]}>No Notes Yet</Text>
+      <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
         Create your own notes to keep track of important information.
       </Text>
       <TouchableOpacity 
-        style={styles.emptyButton}
+        style={[styles.emptyButton, { backgroundColor: colors.primary }]}
         onPress={() => setShowAddModal(true)}
       >
-        <Plus size={20} color="white" />
-        <Text style={styles.emptyButtonText}>Add Note</Text>
+        <Plus size={20} color={colors.onPrimary} />
+        <Text style={[styles.emptyButtonText, { color: colors.onPrimary }]}>Add Note</Text>
       </TouchableOpacity>
     </View>
   );
@@ -56,34 +58,34 @@ export default function NotesScreen() {
   );
 
   const renderSectionHeader = ({ section }: { section: any }) => (
-    <View style={styles.sectionHeader}>
-      <Text style={styles.sectionTitle}>{section.title}</Text>
-      <View style={styles.sectionCountContainer}>
-        <Text style={styles.sectionCount}>{section.data.length}</Text>
+    <View style={[styles.sectionHeader, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>{section.title}</Text>
+      <View style={[styles.sectionCountContainer, { backgroundColor: colors.surfaceVariant }]}>
+        <Text style={[styles.sectionCount, { color: colors.textSecondary }]}>{section.data.length}</Text>
       </View>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Notes</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>My Notes</Text>
         <View style={styles.headerActions}>
           <TouchableOpacity 
             onPress={() => setViewMode(viewMode === 'list' ? 'grouped' : 'list')}
-            style={styles.viewModeButton}
+            style={[styles.viewModeButton, { backgroundColor: colors.surfaceVariant }]}
           >
             {viewMode === 'list' ? (
-              <LayoutList size={20} color="#6B7280" />
+              <LayoutList size={20} color={colors.textSecondary} />
             ) : (
-              <Grid size={20} color="#6B7280" />
+              <Grid size={20} color={colors.textSecondary} />
             )}
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={() => setShowAddModal(true)} 
-            style={styles.addButton}
+            style={[styles.addButton, { backgroundColor: colors.primary }]}
           >
-            <Plus size={20} color="white" />
+            <Plus size={20} color={colors.onPrimary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -124,7 +126,6 @@ export default function NotesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
   },
   header: {
     flexDirection: 'row',
@@ -132,14 +133,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1F2937',
   },
   headerActions: {
     flexDirection: 'row',
@@ -149,12 +147,10 @@ const styles = StyleSheet.create({
     padding: 8,
     marginRight: 8,
     borderRadius: 8,
-    backgroundColor: '#F3F4F6',
   },
   addButton: {
     padding: 8,
     borderRadius: 8,
-    backgroundColor: '#6366F1',
   },
   notesList: {
     flex: 1,
@@ -172,7 +168,6 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
@@ -180,12 +175,10 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1F2937',
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 16,
-    color: '#6B7280',
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 32,
@@ -193,13 +186,11 @@ const styles = StyleSheet.create({
   emptyButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#6366F1',
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderRadius: 12,
   },
   emptyButtonText: {
-    color: 'white',
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,
@@ -210,17 +201,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#F9FAFB',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#374151',
   },
   sectionCountContainer: {
-    backgroundColor: '#E5E7EB',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -228,6 +215,5 @@ const styles = StyleSheet.create({
   sectionCount: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#6B7280',
   },
 });
