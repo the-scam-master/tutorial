@@ -1,24 +1,20 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Dimensions } from 'react-native';
-import Markdown from 'react-native-marked';
+import Markdown from 'react-native-markdown-display';
 import { Note } from '@/types';
 import { Edit3, Trash2, Check, X, Bot, User } from 'lucide-react-native';
 import { useThemeColors } from '@/hooks/useThemeColors';
-
 const { width } = Dimensions.get('window');
-
 interface NoteCardProps {
   note: Note;
   onUpdate: (noteId: string, updates: Partial<Note>) => void;
   onDelete: (noteId: string) => void;
 }
-
 export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(note.content);
   const [editedTopic, setEditedTopic] = useState(note.topic);
   const colors = useThemeColors();
-
   const handleSave = () => {
     if (editedContent.trim()) {
       onUpdate(note.id, {
@@ -28,13 +24,11 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
       setIsEditing(false);
     }
   };
-
   const handleCancel = () => {
     setEditedContent(note.content);
     setEditedTopic(note.topic);
     setIsEditing(false);
   };
-
   const handleDelete = () => {
     Alert.alert(
       'Delete Note',
@@ -49,16 +43,15 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
       ]
     );
   };
-
   const markdownStyles = {
-    text: {  // Replaces 'body'
+    body: {
       fontSize: 16,
       lineHeight: 24,
       color: colors.text,
       margin: 0,
       padding: 0,
     },
-    p: {  // Replaces 'paragraph'
+    paragraph: {
       fontSize: 16,
       lineHeight: 24,
       color: colors.text,
@@ -73,7 +66,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
       fontStyle: 'italic',
       color: colors.text,
     },
-    codespan: {  // Replaces 'code_inline'
+    code_inline: {
       backgroundColor: colors.surfaceVariant,
       color: colors.text,
       padding: 4,
@@ -81,7 +74,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
       fontFamily: 'monospace',
       fontSize: 14,
     },
-    code: {  // Replaces 'code_block'
+    code_block: {
       backgroundColor: colors.surfaceVariant,
       color: colors.text,
       padding: 16,
@@ -98,39 +91,58 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
       marginVertical: 12,
       fontStyle: 'italic',
     },
-    li: {  // Replaces 'list_item'
+    list_item: {
       fontSize: 16,
       lineHeight: 24,
       color: colors.text,
       marginBottom: 8,
     },
-    a: {  // Replaces 'link'
+    bullet_list: {
+      marginBottom: 12,
+    },
+    ordered_list: {
+      marginBottom: 12,
+    },
+    link: {
       color: colors.primary,
       textDecorationLine: 'underline',
     },
-    h1: {  // Replaces 'heading1'
+    heading1: {
       fontSize: 24,
       fontWeight: '700',
       color: colors.text,
       marginBottom: 12,
       marginTop: 12,
     },
-    h2: {  // Replaces 'heading2'
+    heading2: {
       fontSize: 20,
       fontWeight: '600',
       color: colors.text,
       marginBottom: 8,
       marginTop: 8,
     },
-    h3: {  // Replaces 'heading3'
+    heading3: {
       fontSize: 18,
       fontWeight: '600',
       color: colors.text,
       marginBottom: 6,
       marginTop: 6,
     },
+    table: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginVertical: 12,
+    },
+    table_header: {
+      backgroundColor: colors.surfaceVariant,
+      fontWeight: '600',
+    },
+    table_cell: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      padding: 8,
+    },
   };
-
   return (
     <View style={[styles.container, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       <View style={styles.header}>
@@ -173,7 +185,9 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
             textAlignVertical="top"
           />
         ) : (
-          <Markdown value={note.content} styles={markdownStyles} />
+          <Markdown style={markdownStyles}>
+            {note.content}
+          </Markdown>
         )}
       </View>
       
@@ -212,7 +226,6 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 16,
