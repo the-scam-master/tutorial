@@ -1,8 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { MessageCircle, BookOpen } from 'lucide-react-native';
-import { Platform, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useTheme } from '@/contexts/ThemeContext';
+import { Platform, View, Text, StyleSheet } from 'react-native';
 import { useThemeColors } from '@/hooks/useThemeColors';
 
 class ErrorBoundary extends React.Component<
@@ -35,7 +34,6 @@ class ErrorBoundary extends React.Component<
 }
 
 export default function TabLayout() {
-  const { theme, toggleTheme } = useTheme();
   const colors = useThemeColors();
 
   return (
