@@ -13,8 +13,52 @@ const ChatBubble = memo(({ message }: ChatBubbleProps) => {
   const colors = useThemeColors();
   const isUser = message.role === 'user';
 
-  // Ensure message content is a string
+  // Ensure message content is a string and not empty
   const content = typeof message.content === 'string' ? message.content : '';
+  
+  // If content is empty, show a placeholder
+  if (!content) {
+    return (
+      <View style={[styles.container, isUser ? styles.userContainer : styles.aiContainer]}>
+        <View style={styles.messageWrapper}>
+          <View style={styles.avatarSection}>
+            <View
+              style={[
+                styles.avatar,
+                { backgroundColor: isUser ? colors.primary : colors.secondary },
+              ]}
+            >
+              {isUser ? (
+                <User size={16} color={colors.onPrimary} />
+              ) : (
+                <Bot size={16} color={colors.onSecondary} />
+              )}
+            </View>
+          </View>
+          <View style={styles.messageSection}>
+            <View
+              style={[
+                styles.bubble,
+                isUser
+                  ? { backgroundColor: colors.chatBubbleUser }
+                  : { backgroundColor: colors.chatBubbleAI, borderColor: colors.border },
+              ]}
+            >
+              <Text style={{ color: isUser ? colors.onPrimary : colors.text }}>
+                Thinking...
+              </Text>
+            </View>
+          </View>
+        </View>
+        <Text style={[styles.timestamp, { color: colors.textTertiary }]}>
+          {new Date(message.timestamp).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
+        </Text>
+      </View>
+    );
+  }
 
   const markdownStyles = {
     body: {
