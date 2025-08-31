@@ -1,7 +1,9 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { MessageCircle, BookOpen } from 'lucide-react-native';
-import { Platform, View, Text, StyleSheet } from 'react-native';
+import { MessageCircle, BookOpen, Moon, Sun } from 'lucide-react-native';
+import { Platform, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -11,15 +13,12 @@ class ErrorBoundary extends React.Component<
     super(props);
     this.state = { hasError: false };
   }
-
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
   }
-
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Error caught by ErrorBoundary:', error, errorInfo);
   }
-
   render() {
     if (this.state.hasError) {
       return (
@@ -36,25 +35,29 @@ class ErrorBoundary extends React.Component<
 }
 
 export default function TabLayout() {
+  const { theme, toggleTheme } = useTheme();
+  const colors = useThemeColors();
+
   return (
     <ErrorBoundary>
       <Tabs
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
-            backgroundColor: '#FFFFFF',
-            borderTopColor: '#E5E7EB',
+            backgroundColor: colors.surface,
+            borderTopColor: colors.border,
             borderTopWidth: 1,
             paddingTop: 8,
             paddingBottom: Platform.OS === 'ios' ? 34 : 20,
             height: Platform.OS === 'ios' ? 100 : 84,
           },
-          tabBarActiveTintColor: '#6366F1',
-          tabBarInactiveTintColor: '#9CA3AF',
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.textSecondary,
           tabBarLabelStyle: {
             fontSize: 12,
             fontWeight: '600',
             marginTop: 4,
+            color: colors.text,
           },
           tabBarItemStyle: {
             paddingVertical: 8,
@@ -76,6 +79,24 @@ export default function TabLayout() {
             title: 'Notes',
             tabBarIcon: ({ size, color }) => (
               <BookOpen size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="theme-toggle"
+          options={{
+            title: 'Theme',
+            tabBarIcon: ({ size, color }) => (
+              theme === 'light' ? <Moon size={size} color={color} /> : <Sun size={size} color={color} />
+            ),
+            tabBarButton: () => (
+              <TouchableOpacity onPress={toggleTheme} style={styles.themeButton}>
+                {theme === 'light' ? (
+                  <Moon size={24} color={colors.text} />
+                ) : (
+                  <Sun size={24} color={colors.text} />
+                )}
+              </TouchableOpacity>
             ),
           }}
         />
@@ -102,5 +123,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#6B7280',
     textAlign: 'center',
+  },
+  themeButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 8,
   },
 });
