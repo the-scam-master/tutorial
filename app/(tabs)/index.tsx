@@ -5,13 +5,15 @@ import { ChatBubble } from '@/components/ChatBubble';
 import { ChatInput } from '@/components/ChatInput';
 import { QuickActionButtons } from '@/components/QuickActionButtons';
 import { ApiKeyModal } from '@/components/ApiKeyModal';
-import { MessageCircle, RotateCcw, Settings, Sparkles } from 'lucide-react-native';
+import { MessageCircle, RotateCcw, Settings, Sparkles, Moon, Sun } from 'lucide-react-native';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 export default function ChatScreen() {
   const colors = useThemeColors();
+  const { theme, toggleTheme } = useTheme();
   const { 
     messages, 
     loading, 
@@ -103,6 +105,9 @@ export default function ChatScreen() {
       <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <Text style={[styles.headerTitle, { color: colors.text }]}>AI Tutor</Text>
         <View style={styles.headerActions}>
+          <TouchableOpacity onPress={toggleTheme} style={styles.themeButton}>
+            {theme === 'light' ? <Moon size={20} color={colors.textSecondary} /> : <Sun size={20} color={colors.textSecondary} />}
+          </TouchableOpacity>
           <TouchableOpacity 
             onPress={() => setShowApiKeyModal(true)} 
             style={styles.settingsButton}
@@ -178,6 +183,10 @@ const styles = StyleSheet.create({
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  themeButton: {
+    padding: 8,
+    marginRight: 4,
   },
   settingsButton: {
     padding: 8,
