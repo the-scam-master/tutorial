@@ -142,6 +142,7 @@ export const useChat = () => {
       
       streamingMessageId.current = null;
       
+      // Update session
       const session = await StorageService.getCurrentSession();
       if (session) {
         session.messageCount += 2;
@@ -149,7 +150,6 @@ export const useChat = () => {
         if (!session.topics.includes(topic)) {
           session.topics.push(topic);
         }
-        await StorageService.updateSessionAnalytics(session);
       }
     } catch (error) {
       console.error('Error sending message:', error);
