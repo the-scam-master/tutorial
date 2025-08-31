@@ -10,6 +10,7 @@ import {
   Alert 
 } from 'react-native';
 import { Key, X, ExternalLink } from 'lucide-react-native';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface ApiKeyModalProps {
   visible: boolean;
@@ -24,6 +25,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
 }) => {
   const [apiKey, setApiKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const colors = useThemeColors();
 
   const handleSave = async () => {
     if (!apiKey.trim()) {
@@ -61,49 +63,70 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
       animationType="slide"
       presentationStyle="pageSheet"
     >
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
           <TouchableOpacity onPress={handleCancel} style={styles.closeButton}>
-            <X size={24} color="#6B7280" />
+            <X size={24} color={colors.textSecondary} />
           </TouchableOpacity>
-          <Text style={styles.title}>Setup AI</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Setup AI</Text>
           <TouchableOpacity 
             onPress={handleSave} 
-            style={[styles.saveButton, (!apiKey.trim() || isLoading) && styles.saveButtonDisabled]}
+            style={[
+              styles.saveButton, 
+              { backgroundColor: colors.primary },
+              (!apiKey.trim() || isLoading) && styles.saveButtonDisabled
+            ]}
             disabled={!apiKey.trim() || isLoading}
           >
-            <Text style={[styles.saveButtonText, (!apiKey.trim() || isLoading) && styles.saveButtonTextDisabled]}>
+            <Text style={[
+              styles.saveButtonText, 
+              { color: colors.onPrimary },
+              (!apiKey.trim() || isLoading) && styles.saveButtonTextDisabled
+            ]}>
               {isLoading ? 'Saving...' : 'Save'}
             </Text>
           </TouchableOpacity>
         </View>
         <View style={styles.content}>
           <View style={styles.iconContainer}>
-            <Key size={48} color="#3B82F6" />
+            <Key size={48} color={colors.primary} />
           </View>
           
-          <Text style={styles.description}>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>
             To start chatting with your AI tutor, you'll need a Google AI API key. 
             It's free and takes just a minute to set up.
           </Text>
-          <TouchableOpacity style={styles.guideButton} onPress={openApiKeyGuide}>
-            <ExternalLink size={20} color="#3B82F6" />
-            <Text style={styles.guideButtonText}>Get Free API Key</Text>
+          <TouchableOpacity 
+            style={[
+              styles.guideButton, 
+              { backgroundColor: colors.surface, borderColor: colors.primary }
+            ]} 
+            onPress={openApiKeyGuide}
+          >
+            <ExternalLink size={20} color={colors.primary} />
+            <Text style={[styles.guideButtonText, { color: colors.primary }]}>Get Free API Key</Text>
           </TouchableOpacity>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Google AI API Key</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Google AI API Key</Text>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input, 
+                { 
+                  backgroundColor: colors.inputBackground, 
+                  borderColor: colors.inputBorder,
+                  color: colors.text 
+                }
+              ]}
               value={apiKey}
               onChangeText={setApiKey}
               placeholder="AIza..."
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={colors.textSecondary}
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
               editable={!isLoading}
             />
-            <Text style={styles.inputHint}>
+            <Text style={[styles.inputHint, { color: colors.textTertiary }]}>
               Your API key is stored locally and never shared
             </Text>
           </View>
@@ -116,7 +139,6 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
   },
   header: {
     flexDirection: 'row',
@@ -125,7 +147,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   closeButton: {
     padding: 4,
@@ -133,21 +154,18 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1F2937',
   },
   saveButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: '#3B82F6',
   },
   saveButtonDisabled: {
-    backgroundColor: '#E5E7EB',
+    opacity: 0.5,
   },
   saveButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'white',
   },
   saveButtonTextDisabled: {
     color: '#9CA3AF',
@@ -163,7 +181,6 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 16,
-    color: '#6B7280',
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 24,
@@ -175,13 +192,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#3B82F6',
     marginBottom: 32,
   },
   guideButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#3B82F6',
     marginLeft: 8,
   },
   inputGroup: {
@@ -190,21 +205,17 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#374151',
     marginBottom: 8,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    backgroundColor: '#F9FAFB',
+    borderWidth: 1,
   },
   inputHint: {
     fontSize: 12,
-    color: '#9CA3AF',
     marginTop: 6,
     textAlign: 'center',
   },
