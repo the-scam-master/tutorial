@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Dimensions 
 import Markdown from 'react-native-markdown-display';
 import { Note } from '@/types';
 import { Edit3, Trash2, Check, X, Bot, User } from 'lucide-react-native';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 const { width } = Dimensions.get('window');
 
@@ -16,6 +17,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(note.content);
   const [editedTopic, setEditedTopic] = useState(note.topic);
+  const colors = useThemeColors();
 
   const handleSave = () => {
     if (editedContent.trim()) {
@@ -52,36 +54,36 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
     body: {
       fontSize: 16,
       lineHeight: 24,
-      color: '#1F2937',
+      color: colors.text,
       margin: 0,
       padding: 0,
     },
     paragraph: {
       fontSize: 16,
       lineHeight: 24,
-      color: '#1F2937',
+      color: colors.text,
       marginBottom: 12,
       marginTop: 0,
     },
     strong: {
       fontWeight: '700',
-      color: '#1F2937',
+      color: colors.text,
     },
     em: {
       fontStyle: 'italic',
-      color: '#1F2937',
+      color: colors.text,
     },
     code_inline: {
-      backgroundColor: '#F3F4F6',
-      color: '#1F2937',
+      backgroundColor: colors.surfaceVariant,
+      color: colors.text,
       padding: 4,
       borderRadius: 6,
       fontFamily: 'monospace',
       fontSize: 14,
     },
     code_block: {
-      backgroundColor: '#F3F4F6',
-      color: '#1F2937',
+      backgroundColor: colors.surfaceVariant,
+      color: colors.text,
       padding: 16,
       borderRadius: 8,
       fontFamily: 'monospace',
@@ -89,9 +91,9 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
       marginVertical: 12,
     },
     blockquote: {
-      backgroundColor: '#F9FAFB',
+      backgroundColor: colors.surfaceVariant,
       borderLeftWidth: 4,
-      borderLeftColor: '#6366F1',
+      borderLeftColor: colors.primary,
       paddingLeft: 16,
       marginVertical: 12,
       fontStyle: 'italic',
@@ -99,58 +101,58 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
     list_item: {
       fontSize: 16,
       lineHeight: 24,
-      color: '#1F2937',
+      color: colors.text,
       marginBottom: 8,
     },
     link: {
-      color: '#6366F1',
+      color: colors.primary,
       textDecorationLine: 'underline',
     },
     heading1: {
       fontSize: 24,
       fontWeight: '700',
-      color: '#1F2937',
+      color: colors.text,
       marginBottom: 12,
       marginTop: 12,
     },
     heading2: {
       fontSize: 20,
       fontWeight: '600',
-      color: '#1F2937',
+      color: colors.text,
       marginBottom: 8,
       marginTop: 8,
     },
     heading3: {
       fontSize: 18,
       fontWeight: '600',
-      color: '#1F2937',
+      color: colors.text,
       marginBottom: 6,
       marginTop: 6,
     },
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       <View style={styles.header}>
         <View style={styles.topicContainer}>
           {isEditing ? (
             <TextInput
-              style={styles.topicInput}
+              style={[styles.topicInput, { color: colors.text, borderBottomColor: colors.border }]}
               value={editedTopic}
               onChangeText={setEditedTopic}
               placeholder="Topic"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={colors.textSecondary}
             />
           ) : (
-            <Text style={styles.topic}>{note.topic}</Text>
+            <Text style={[styles.topic, { color: colors.text }]}>{note.topic}</Text>
           )}
         </View>
         
         <View style={styles.sourceIndicator}>
           {note.source === 'auto' ? (
-            <Bot size={14} color="#8B5CF6" />
+            <Bot size={14} color={colors.secondary} />
           ) : (
-            <User size={14} color="#6366F1" />
+            <User size={14} color={colors.primary} />
           )}
         </View>
       </View>
@@ -158,12 +160,16 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
       <View style={styles.content}>
         {isEditing ? (
           <TextInput
-            style={styles.contentInput}
+            style={[styles.contentInput, { 
+              color: colors.text, 
+              backgroundColor: colors.inputBackground,
+              borderColor: colors.border 
+            }]}
             value={editedContent}
             onChangeText={setEditedContent}
             multiline
             placeholder="Note content"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.textSecondary}
             textAlignVertical="top"
           />
         ) : (
@@ -174,7 +180,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
       </View>
       
       <View style={styles.footer}>
-        <Text style={styles.timestamp}>
+        <Text style={[styles.timestamp, { color: colors.textTertiary }]}>
           {new Date(note.timestamp).toLocaleDateString([], {
             month: 'short',
             day: 'numeric',
@@ -186,20 +192,20 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
         <View style={styles.actions}>
           {isEditing ? (
             <>
-              <TouchableOpacity onPress={handleCancel} style={styles.actionButton}>
-                <X size={18} color="#EF4444" />
+              <TouchableOpacity onPress={handleCancel} style={[styles.actionButton, { backgroundColor: colors.surfaceVariant }]}>
+                <X size={18} color={colors.error} />
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleSave} style={styles.actionButton}>
-                <Check size={18} color="#10B981" />
+              <TouchableOpacity onPress={handleSave} style={[styles.actionButton, { backgroundColor: colors.surfaceVariant }]}>
+                <Check size={18} color={colors.success} />
               </TouchableOpacity>
             </>
           ) : (
             <>
-              <TouchableOpacity onPress={() => setIsEditing(true)} style={styles.actionButton}>
-                <Edit3 size={16} color="#6B7280" />
+              <TouchableOpacity onPress={() => setIsEditing(true)} style={[styles.actionButton, { backgroundColor: colors.surfaceVariant }]}>
+                <Edit3 size={16} color={colors.textSecondary} />
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleDelete} style={styles.actionButton}>
-                <Trash2 size={16} color="#EF4444" />
+              <TouchableOpacity onPress={handleDelete} style={[styles.actionButton, { backgroundColor: colors.surfaceVariant }]}>
+                <Trash2 size={16} color={colors.error} />
               </TouchableOpacity>
             </>
           )}
@@ -211,7 +217,6 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
     marginHorizontal: 16,
     marginVertical: 8,
     borderRadius: 16,
@@ -222,7 +227,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
     borderLeftWidth: 4,
-    borderLeftColor: '#6366F1',
   },
   header: {
     flexDirection: 'row',
@@ -236,14 +240,11 @@ const styles = StyleSheet.create({
   topic: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1F2937',
   },
   topicInput: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1F2937',
     borderBottomWidth: 2,
-    borderBottomColor: '#D1D5DB',
     paddingVertical: 4,
   },
   sourceIndicator: {
@@ -255,13 +256,11 @@ const styles = StyleSheet.create({
   contentInput: {
     fontSize: 16,
     lineHeight: 24,
-    color: '#1F2937',
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
     borderRadius: 12,
     padding: 16,
     textAlignVertical: 'top',
     minHeight: 100,
+    borderWidth: 1,
   },
   footer: {
     flexDirection: 'row',
@@ -270,7 +269,6 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     fontSize: 12,
-    color: '#9CA3AF',
   },
   actions: {
     flexDirection: 'row',
@@ -279,6 +277,5 @@ const styles = StyleSheet.create({
     padding: 8,
     marginLeft: 4,
     borderRadius: 8,
-    backgroundColor: '#F9FAFB',
   },
 });
