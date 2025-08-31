@@ -13,6 +13,9 @@ const ChatBubble = memo(({ message }: ChatBubbleProps) => {
   const colors = useThemeColors();
   const isUser = message.role === 'user';
 
+  // Ensure message content is a string
+  const content = typeof message.content === 'string' ? message.content : '';
+
   const markdownStyles = {
     body: {
       fontSize: 16,
@@ -122,7 +125,6 @@ const ChatBubble = memo(({ message }: ChatBubbleProps) => {
             )}
           </View>
         </View>
-
         <View style={styles.messageSection}>
           <View
             style={[
@@ -132,11 +134,12 @@ const ChatBubble = memo(({ message }: ChatBubbleProps) => {
                 : { backgroundColor: colors.chatBubbleAI, borderColor: colors.border },
             ]}
           >
-            <Markdown style={markdownStyles}>{message.content}</Markdown>
+            <Markdown style={markdownStyles}>
+              {content}
+            </Markdown>
           </View>
         </View>
       </View>
-
       <Text style={[styles.timestamp, { color: colors.textTertiary }]}>
         {new Date(message.timestamp).toLocaleTimeString([], {
           hour: '2-digit',
