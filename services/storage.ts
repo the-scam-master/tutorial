@@ -1,11 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Message, Note, StudySession, Analytics } from '@/types';
+import { Message, Note, StudySession } from '@/types';
 
 const KEYS = {
   MESSAGES: 'tutor_messages',
   NOTES: 'tutor_notes',
   SESSIONS: 'tutor_sessions',
-  ANALYTICS: 'tutor_analytics',
   CURRENT_SESSION: 'tutor_current_session',
   API_KEY: 'tutor_api_key',
   CONVERSATION_MEMORY: 'tutor_conversation_memory',
@@ -131,46 +130,6 @@ export class StorageService {
     }
   }
 
-  // Analytics
-  static async getAnalytics(): Promise<Analytics> {
-    try {
-      const data = await AsyncStorage.getItem(KEYS.ANALYTICS);
-      const defaultAnalytics: Analytics = {
-        totalSessions: 0,
-        totalMessages: 0,
-        streakDays: 0,
-        topicFrequency: {},
-        dailyActivity: {},
-      };
-      
-      if (!data) {
-        await this.updateAnalytics(defaultAnalytics);
-        return defaultAnalytics;
-      }
-      
-      return JSON.parse(data);
-    } catch (error) {
-      console.error('Error getting analytics:', error);
-      return {
-        totalSessions: 0,
-        totalMessages: 0,
-        streakDays: 0,
-        topicFrequency: {},
-        dailyActivity: {},
-      };
-    }
-  }
-
-  static async updateAnalytics(updates: Partial<Analytics>): Promise<void> {
-    try {
-      const current = await this.getAnalytics();
-      const updated = { ...current, ...updates };
-      await AsyncStorage.setItem(KEYS.ANALYTICS, JSON.stringify(updated));
-    } catch (error) {
-      console.error('Error updating analytics:', error);
-    }
-  }
-
   // Study Sessions
   static async getCurrentSession(): Promise<StudySession | null> {
     try {
@@ -211,9 +170,6 @@ export class StorageService {
         
         // Clear current session
         await AsyncStorage.removeItem(KEYS.CURRENT_SESSION);
-        
-        // Update analytics
-        await this.updateSessionAnalytics(session);
       }
     } catch (error) {
       console.error('Error ending session:', error);
@@ -228,50 +184,5 @@ export class StorageService {
       console.error('Error getting sessions:', error);
       return [];
     }
-  }
-
-  static async updateSessionAnalytics(session: StudySession): Promise<void> {
-    try {
-      const analytics = await this.getAnalytics();
-      const dateKey = new Date().toISOString().split('T')[0];
-      
-      // Update analytics
-      analytics.totalSessions += 1;
-      analytics.totalMessages += session.messageCount;
-      analytics.lastStudyDate = new Date();
-      analytics.dailyActivity[dateKey] = (analytics.dailyActivity[dateKey] || 0) + 1;
-      
-      // Update topic frequency
-      session.topics.forEach(topic => {
-        analytics.topicFrequency[topic] = (analytics.topicFrequency[topic] || 0) + 1;
-      });
-      
-      // Calculate streak
-      analytics.streakDays = this.calculateStreak(analytics.dailyActivity);
-      
-      await this.updateAnalytics(analytics);
-    } catch (error) {
-      console.error('Error updating session analytics:', error);
-    }
-  }
-
-  private static calculateStreak(dailyActivity: Record<string, number>): number {
-    const today = new Date();
-    let streak = 0;
-    
-    // Only check the last 30 days to improve performance
-    for (let i = 0; i < 30; i++) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const dateKey = date.toISOString().split('T')[0];
-      
-      if (dailyActivity[dateKey] > 0) {
-        streak++;
-      } else if (i > 0) {
-        break;
-      }
-    }
-    
-    return streak;
   }
 }
