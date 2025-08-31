@@ -9,6 +9,7 @@ import {
   SafeAreaView 
 } from 'react-native';
 import { X, Plus } from 'lucide-react-native';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface AddNoteModalProps {
   visible: boolean;
@@ -23,6 +24,7 @@ export const AddNoteModal: React.FC<AddNoteModalProps> = ({
 }) => {
   const [content, setContent] = useState('');
   const [topic, setTopic] = useState('');
+  const colors = useThemeColors();
 
   const handleSave = () => {
     if (content.trim() && topic.trim()) {
@@ -45,39 +47,56 @@ export const AddNoteModal: React.FC<AddNoteModalProps> = ({
       animationType="slide"
       presentationStyle="pageSheet"
     >
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
           <TouchableOpacity onPress={handleCancel} style={styles.closeButton}>
-            <X size={24} color="#6B7280" />
+            <X size={24} color={colors.textSecondary} />
           </TouchableOpacity>
-          <Text style={styles.title}>Add Note</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Add Note</Text>
           <TouchableOpacity 
             onPress={handleSave} 
-            style={[styles.saveButton, (!content.trim() || !topic.trim()) && styles.saveButtonDisabled]}
+            style={[
+              styles.saveButton, 
+              (!content.trim() || !topic.trim()) && styles.saveButtonDisabled
+            ]}
             disabled={!content.trim() || !topic.trim()}
           >
-            <Plus size={20} color={(!content.trim() || !topic.trim()) ? '#9CA3AF' : '#3B82F6'} />
+            <Plus size={20} color={(!content.trim() || !topic.trim()) ? colors.textTertiary : colors.primary} />
           </TouchableOpacity>
         </View>
         <View style={styles.form}>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Topic</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Topic</Text>
             <TextInput
-              style={styles.topicInput}
+              style={[
+                styles.topicInput, 
+                { 
+                  backgroundColor: colors.inputBackground, 
+                  borderColor: colors.inputBorder,
+                  color: colors.text 
+                }
+              ]}
               value={topic}
               onChangeText={setTopic}
               placeholder="e.g., Mathematics, Science, History"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={colors.textSecondary}
             />
           </View>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Content</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Content</Text>
             <TextInput
-              style={styles.contentInput}
+              style={[
+                styles.contentInput, 
+                { 
+                  backgroundColor: colors.inputBackground, 
+                  borderColor: colors.inputBorder,
+                  color: colors.text 
+                }
+              ]}
               value={content}
               onChangeText={setContent}
               placeholder="Write your note here..."
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={colors.textSecondary}
               multiline
               textAlignVertical="top"
             />
@@ -91,7 +110,6 @@ export const AddNoteModal: React.FC<AddNoteModalProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
   },
   header: {
     flexDirection: 'row',
@@ -100,7 +118,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   closeButton: {
     padding: 4,
@@ -108,7 +125,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1F2937',
   },
   saveButton: {
     padding: 4,
@@ -126,26 +142,21 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#374151',
     marginBottom: 8,
   },
   topicInput: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    backgroundColor: '#F9FAFB',
+    borderWidth: 1,
   },
   contentInput: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    backgroundColor: '#F9FAFB',
+    borderWidth: 1,
     minHeight: 120,
   },
 });
