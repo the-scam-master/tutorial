@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Dimensions } from 'react-native';
-import Markdown from 'react-native-markdown-display';
+import Markdown from 'react-native-marked';
 import { Note } from '@/types';
 import { Edit3, Trash2, Check, X, Bot, User } from 'lucide-react-native';
 import { useThemeColors } from '@/hooks/useThemeColors';
@@ -51,14 +51,14 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
   };
 
   const markdownStyles = {
-    body: {
+    text: {  // Replaces 'body'
       fontSize: 16,
       lineHeight: 24,
       color: colors.text,
       margin: 0,
       padding: 0,
     },
-    paragraph: {
+    p: {  // Replaces 'paragraph'
       fontSize: 16,
       lineHeight: 24,
       color: colors.text,
@@ -73,7 +73,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
       fontStyle: 'italic',
       color: colors.text,
     },
-    code_inline: {
+    codespan: {  // Replaces 'code_inline'
       backgroundColor: colors.surfaceVariant,
       color: colors.text,
       padding: 4,
@@ -81,7 +81,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
       fontFamily: 'monospace',
       fontSize: 14,
     },
-    code_block: {
+    code: {  // Replaces 'code_block'
       backgroundColor: colors.surfaceVariant,
       color: colors.text,
       padding: 16,
@@ -98,31 +98,31 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
       marginVertical: 12,
       fontStyle: 'italic',
     },
-    list_item: {
+    li: {  // Replaces 'list_item'
       fontSize: 16,
       lineHeight: 24,
       color: colors.text,
       marginBottom: 8,
     },
-    link: {
+    a: {  // Replaces 'link'
       color: colors.primary,
       textDecorationLine: 'underline',
     },
-    heading1: {
+    h1: {  // Replaces 'heading1'
       fontSize: 24,
       fontWeight: '700',
       color: colors.text,
       marginBottom: 12,
       marginTop: 12,
     },
-    heading2: {
+    h2: {  // Replaces 'heading2'
       fontSize: 20,
       fontWeight: '600',
       color: colors.text,
       marginBottom: 8,
       marginTop: 8,
     },
-    heading3: {
+    h3: {  // Replaces 'heading3'
       fontSize: 18,
       fontWeight: '600',
       color: colors.text,
@@ -173,9 +173,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, onUpdate, onDelete }) 
             textAlignVertical="top"
           />
         ) : (
-          <Markdown style={markdownStyles}>
-            {note.content}
-          </Markdown>
+          <Markdown value={note.content} styles={markdownStyles} />
         )}
       </View>
       
