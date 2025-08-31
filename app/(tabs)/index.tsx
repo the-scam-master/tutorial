@@ -6,10 +6,12 @@ import { ChatInput } from '@/components/ChatInput';
 import { QuickActionButtons } from '@/components/QuickActionButtons';
 import { ApiKeyModal } from '@/components/ApiKeyModal';
 import { MessageCircle, RotateCcw, Settings, Sparkles } from 'lucide-react-native';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 const { width } = Dimensions.get('window');
 
 export default function ChatScreen() {
+  const colors = useThemeColors();
   const { 
     messages, 
     loading, 
@@ -31,7 +33,6 @@ export default function ChatScreen() {
     }
   }, [apiKeySet]);
 
-  // Optimized scroll to bottom
   useEffect(() => {
     if (messages.length > 0 && flatListRef.current) {
       const timeout = setTimeout(() => {
@@ -63,20 +64,20 @@ export default function ChatScreen() {
 
   const EmptyState = () => (
     <View style={styles.emptyState}>
-      <View style={styles.emptyIconContainer}>
-        <Sparkles size={64} color="#D1D5DB" />
+      <View style={[styles.emptyIconContainer, { backgroundColor: colors.surfaceVariant }]}>
+        <Sparkles size={64} color={colors.primary} />
       </View>
-      <Text style={styles.emptyTitle}>Welcome to AI Tutor!</Text>
-      <Text style={styles.emptySubtitle}>
+      <Text style={[styles.emptyTitle, { color: colors.text }]}>Welcome to AI Tutor!</Text>
+      <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
         Ask me anything you'd like to learn about. I'll help you understand complex topics with clear explanations.
       </Text>
       {!apiKeySet && (
         <TouchableOpacity 
-          style={styles.setupButton}
+          style={[styles.setupButton, { backgroundColor: colors.primary }]}
           onPress={() => setShowApiKeyModal(true)}
         >
-          <Settings size={20} color="white" />
-          <Text style={styles.setupButtonText}>Setup AI</Text>
+          <Settings size={20} color={colors.onPrimary} />
+          <Text style={[styles.setupButtonText, { color: colors.onPrimary }]}>Setup AI</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -91,7 +92,6 @@ export default function ChatScreen() {
     setListHeight(height);
   }, []);
 
-  // Check if we need to scroll to bottom
   useEffect(() => {
     if (contentHeight > 0 && listHeight > 0 && contentHeight > listHeight) {
       flatListRef.current?.scrollToEnd({ animated: false });
@@ -99,19 +99,19 @@ export default function ChatScreen() {
   }, [contentHeight, listHeight]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>AI Tutor</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>AI Tutor</Text>
         <View style={styles.headerActions}>
           <TouchableOpacity 
             onPress={() => setShowApiKeyModal(true)} 
             style={styles.settingsButton}
           >
-            <Settings size={20} color="#6B7280" />
+            <Settings size={20} color={colors.textSecondary} />
           </TouchableOpacity>
           {messages.length > 0 && (
             <TouchableOpacity onPress={startNewSession} style={styles.clearButton}>
-              <RotateCcw size={20} color="#6B7280" />
+              <RotateCcw size={20} color={colors.textSecondary} />
             </TouchableOpacity>
           )}
         </View>
@@ -145,7 +145,7 @@ export default function ChatScreen() {
       
       <KeyboardAvoidingView 
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.inputContainer}
+        style={[styles.inputContainer, { borderTopColor: colors.border }]}
       >
         <ChatInput onSend={sendMessage} disabled={loading || !apiKeySet} />
       </KeyboardAvoidingView>
@@ -162,7 +162,6 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
   },
   header: {
     flexDirection: 'row',
@@ -170,14 +169,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1F2937',
   },
   headerActions: {
     flexDirection: 'row',
@@ -211,7 +207,6 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
@@ -219,12 +214,10 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1F2937',
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 16,
-    color: '#6B7280',
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 24,
@@ -232,13 +225,11 @@ const styles = StyleSheet.create({
   setupButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#6366F1',
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderRadius: 12,
   },
   setupButtonText: {
-    color: 'white',
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,
@@ -246,6 +237,5 @@ const styles = StyleSheet.create({
   inputContainer: {
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
   },
 });
