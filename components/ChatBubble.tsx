@@ -3,48 +3,50 @@ import { View, Text, StyleSheet } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 import { Message } from '@/types';
 import { User, Bot } from 'lucide-react-native';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface ChatBubbleProps {
   message: Message;
 }
 
 const ChatBubble = memo(({ message }: ChatBubbleProps) => {
+  const colors = useThemeColors();
   const isUser = message.role === 'user';
 
   const markdownStyles = {
     body: {
       fontSize: 16,
       lineHeight: 24,
-      color: isUser ? '#FFFFFF' : '#1F2937',
+      color: isUser ? colors.onPrimary : colors.text,
       margin: 0,
       padding: 0,
     },
     paragraph: {
       fontSize: 16,
       lineHeight: 24,
-      color: isUser ? '#FFFFFF' : '#1F2937',
+      color: isUser ? colors.onPrimary : colors.text,
       marginBottom: 12,
       marginTop: 0,
     },
     strong: {
       fontWeight: '700',
-      color: isUser ? '#FFFFFF' : '#1F2937',
+      color: isUser ? colors.onPrimary : colors.text,
     },
     em: {
       fontStyle: 'italic',
-      color: isUser ? '#FFFFFF' : '#1F2937',
+      color: isUser ? colors.onPrimary : colors.text,
     },
     code_inline: {
-      backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : '#F3F4F6',
-      color: isUser ? '#FFFFFF' : '#1F2937',
+      backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : colors.surfaceVariant,
+      color: isUser ? colors.onPrimary : colors.text,
       padding: 4,
       borderRadius: 6,
       fontFamily: 'monospace',
       fontSize: 14,
     },
     code_block: {
-      backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : '#F3F4F6',
-      color: isUser ? '#FFFFFF' : '#1F2937',
+      backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : colors.surfaceVariant,
+      color: isUser ? colors.onPrimary : colors.text,
       padding: 16,
       borderRadius: 8,
       fontFamily: 'monospace',
@@ -52,9 +54,9 @@ const ChatBubble = memo(({ message }: ChatBubbleProps) => {
       marginVertical: 12,
     },
     blockquote: {
-      backgroundColor: isUser ? 'rgba(255,255,255,0.1)' : '#F9FAFB',
+      backgroundColor: isUser ? 'rgba(255,255,255,0.1)' : colors.surfaceVariant,
       borderLeftWidth: 4,
-      borderLeftColor: isUser ? 'rgba(255,255,255,0.5)' : '#6366F1',
+      borderLeftColor: isUser ? 'rgba(255,255,255,0.5)' : colors.primary,
       paddingLeft: 16,
       marginVertical: 12,
       fontStyle: 'italic',
@@ -62,7 +64,7 @@ const ChatBubble = memo(({ message }: ChatBubbleProps) => {
     list_item: {
       fontSize: 16,
       lineHeight: 24,
-      color: isUser ? '#FFFFFF' : '#1F2937',
+      color: isUser ? colors.onPrimary : colors.text,
       marginBottom: 8,
     },
     bullet_list: {
@@ -72,42 +74,42 @@ const ChatBubble = memo(({ message }: ChatBubbleProps) => {
       marginBottom: 12,
     },
     link: {
-      color: isUser ? '#93C5FD' : '#6366F1',
+      color: isUser ? '#93C5FD' : colors.primary,
       textDecorationLine: 'underline',
     },
     heading1: {
       fontSize: 24,
       fontWeight: '700',
-      color: isUser ? '#FFFFFF' : '#1F2937',
+      color: isUser ? colors.onPrimary : colors.text,
       marginBottom: 12,
       marginTop: 12,
     },
     heading2: {
       fontSize: 20,
       fontWeight: '600',
-      color: isUser ? '#FFFFFF' : '#1F2937',
+      color: isUser ? colors.onPrimary : colors.text,
       marginBottom: 8,
       marginTop: 8,
     },
     heading3: {
       fontSize: 18,
       fontWeight: '600',
-      color: isUser ? '#FFFFFF' : '#1F2937',
+      color: isUser ? colors.onPrimary : colors.text,
       marginBottom: 6,
       marginTop: 6,
     },
     table: {
       borderWidth: 1,
-      borderColor: isUser ? 'rgba(255,255,255,0.3)' : '#E5E7EB',
+      borderColor: isUser ? 'rgba(255,255,255,0.3)' : colors.border,
       marginVertical: 12,
     },
     table_header: {
-      backgroundColor: isUser ? 'rgba(255,255,255,0.1)' : '#F3F4F6',
+      backgroundColor: isUser ? 'rgba(255,255,255,0.1)' : colors.surfaceVariant,
       fontWeight: '600',
     },
     table_cell: {
       borderWidth: 1,
-      borderColor: isUser ? 'rgba(255,255,255,0.3)' : '#E5E7EB',
+      borderColor: isUser ? 'rgba(255,255,255,0.3)' : colors.border,
       padding: 8,
     },
   };
@@ -116,17 +118,27 @@ const ChatBubble = memo(({ message }: ChatBubbleProps) => {
     <View style={[styles.container, isUser ? styles.userContainer : styles.aiContainer]}>
       <View style={styles.messageWrapper}>
         <View style={styles.avatarSection}>
-          <View style={[styles.avatar, isUser ? styles.userAvatar : styles.aiAvatar]}>
+          <View style={[
+            styles.avatar, 
+            { 
+              backgroundColor: isUser ? colors.primary : colors.secondary 
+            }
+          ]}>
             {isUser ? (
-              <User size={16} color="white" />
+              <User size={16} color={colors.onPrimary} />
             ) : (
-              <Bot size={16} color="white" />
+              <Bot size={16} color={colors.onSecondary} />
             )}
           </View>
         </View>
         
         <View style={styles.messageSection}>
-          <View style={[styles.bubble, isUser ? styles.userBubble : styles.aiBubble]}>
+          <View style={[
+            styles.bubble, 
+            isUser 
+              ? { backgroundColor: colors.chatBubbleUser } 
+              : { backgroundColor: colors.chatBubbleAI, borderColor: colors.border }
+          ]}>
             <Markdown style={markdownStyles}>
               {message.content}
             </Markdown>
@@ -134,7 +146,7 @@ const ChatBubble = memo(({ message }: ChatBubbleProps) => {
         </View>
       </View>
       
-      <Text style={styles.timestamp}>
+      <Text style={[styles.timestamp, { color: colors.textTertiary }]}>
         {new Date(message.timestamp).toLocaleTimeString([], { 
           hour: '2-digit', 
           minute: '2-digit' 
@@ -170,12 +182,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  userAvatar: {
-    backgroundColor: '#6366F1',
-  },
-  aiAvatar: {
-    backgroundColor: '#8B5CF6',
-  },
   messageSection: {
     flex: 1,
   },
@@ -188,19 +194,8 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-  userBubble: {
-    backgroundColor: '#6366F1',
-    borderBottomRightRadius: 4,
-  },
-  aiBubble: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    borderBottomLeftRadius: 4,
-  },
   timestamp: {
     fontSize: 11,
-    color: '#9CA3AF',
     marginTop: 4,
     marginHorizontal: 8,
   },
