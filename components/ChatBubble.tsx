@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Markdown from 'react-native-markdown-display';
+import Markdown from 'react-native-marked';
 import { Message } from '@/types';
 import { User, Bot } from 'lucide-react-native';
 import { useThemeColors } from '@/hooks/useThemeColors';
@@ -14,14 +14,14 @@ const ChatBubble = memo(({ message }: ChatBubbleProps) => {
   const isUser = message.role === 'user';
 
   const markdownStyles = {
-    body: {
+    text: {  // Replaces 'body'
       fontSize: 16,
       lineHeight: 24,
       color: isUser ? colors.onPrimary : colors.text,
       margin: 0,
       padding: 0,
     },
-    paragraph: {
+    p: {  // Replaces 'paragraph'
       fontSize: 16,
       lineHeight: 24,
       color: isUser ? colors.onPrimary : colors.text,
@@ -36,7 +36,7 @@ const ChatBubble = memo(({ message }: ChatBubbleProps) => {
       fontStyle: 'italic',
       color: isUser ? colors.onPrimary : colors.text,
     },
-    code_inline: {
+    codespan: {  // Replaces 'code_inline'
       backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : colors.surfaceVariant,
       color: isUser ? colors.onPrimary : colors.text,
       padding: 4,
@@ -44,7 +44,7 @@ const ChatBubble = memo(({ message }: ChatBubbleProps) => {
       fontFamily: 'monospace',
       fontSize: 14,
     },
-    code_block: {
+    code: {  // Replaces 'code_block'
       backgroundColor: isUser ? 'rgba(255,255,255,0.2)' : colors.surfaceVariant,
       color: isUser ? colors.onPrimary : colors.text,
       padding: 16,
@@ -61,37 +61,37 @@ const ChatBubble = memo(({ message }: ChatBubbleProps) => {
       marginVertical: 12,
       fontStyle: 'italic',
     },
-    list_item: {
+    li: {  // Replaces 'list_item'
       fontSize: 16,
       lineHeight: 24,
       color: isUser ? colors.onPrimary : colors.text,
       marginBottom: 8,
     },
-    bullet_list: {
+    ul: {  // Replaces 'bullet_list'
       marginBottom: 12,
     },
-    ordered_list: {
+    ol: {  // Replaces 'ordered_list'
       marginBottom: 12,
     },
-    link: {
+    a: {  // Replaces 'link'
       color: isUser ? '#93C5FD' : colors.primary,
       textDecorationLine: 'underline',
     },
-    heading1: {
+    h1: {  // Replaces 'heading1'
       fontSize: 24,
       fontWeight: '700',
       color: isUser ? colors.onPrimary : colors.text,
       marginBottom: 12,
       marginTop: 12,
     },
-    heading2: {
+    h2: {  // Replaces 'heading2'
       fontSize: 20,
       fontWeight: '600',
       color: isUser ? colors.onPrimary : colors.text,
       marginBottom: 8,
       marginTop: 8,
     },
-    heading3: {
+    h3: {  // Replaces 'heading3'
       fontSize: 18,
       fontWeight: '600',
       color: isUser ? colors.onPrimary : colors.text,
@@ -103,11 +103,11 @@ const ChatBubble = memo(({ message }: ChatBubbleProps) => {
       borderColor: isUser ? 'rgba(255,255,255,0.3)' : colors.border,
       marginVertical: 12,
     },
-    table_header: {
+    th: {  // Replaces 'table_header'
       backgroundColor: isUser ? 'rgba(255,255,255,0.1)' : colors.surfaceVariant,
       fontWeight: '600',
     },
-    table_cell: {
+    td: {  // Replaces 'table_cell'
       borderWidth: 1,
       borderColor: isUser ? 'rgba(255,255,255,0.3)' : colors.border,
       padding: 8,
@@ -139,9 +139,7 @@ const ChatBubble = memo(({ message }: ChatBubbleProps) => {
               ? { backgroundColor: colors.chatBubbleUser } 
               : { backgroundColor: colors.chatBubbleAI, borderColor: colors.border }
           ]}>
-            <Markdown style={markdownStyles}>
-              {message.content}
-            </Markdown>
+            <Markdown value={message.content} styles={markdownStyles} />
           </View>
         </View>
       </View>
