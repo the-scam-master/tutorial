@@ -3,9 +3,9 @@ import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { View, Text, StyleSheet } from 'react-native';
 
-// Error Boundary component to catch JavaScript errors
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { hasError: boolean; error?: Error }
@@ -14,15 +14,12 @@ class ErrorBoundary extends React.Component<
     super(props);
     this.state = { hasError: false };
   }
-
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
   }
-
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Error caught by ErrorBoundary:', error, errorInfo);
   }
-
   render() {
     if (this.state.hasError) {
       return (
@@ -34,7 +31,6 @@ class ErrorBoundary extends React.Component<
         </View>
       );
     }
-
     return this.props.children;
   }
 }
@@ -42,15 +38,17 @@ class ErrorBoundary extends React.Component<
 export default function RootLayout() {
   useFrameworkReady();
   return (
-    <ErrorBoundary>
-      <>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-      </>
-    </ErrorBoundary>
+    <ThemeProvider>
+      <ErrorBoundary>
+        <>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </>
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 }
 
