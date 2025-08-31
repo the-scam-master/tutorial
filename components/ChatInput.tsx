@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Send } from 'lucide-react-native';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -9,6 +10,7 @@ interface ChatInputProps {
 
 export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled = false }) => {
   const [message, setMessage] = useState('');
+  const colors = useThemeColors();
 
   const handleSend = () => {
     if (message.trim() && !disabled) {
@@ -18,14 +20,17 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled = false }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.inputContainer}>
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      <View style={[styles.inputContainer, { 
+        backgroundColor: colors.inputBackground, 
+        borderColor: colors.inputBorder 
+      }]}>
         <TextInput
-          style={styles.textInput}
+          style={[styles.textInput, { color: colors.text }]}
           value={message}
           onChangeText={setMessage}
           placeholder="Ask me anything..."
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={colors.textSecondary}
           multiline
           maxLength={500}
           editable={!disabled}
@@ -40,7 +45,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled = false }
           onPress={handleSend}
           disabled={!message.trim() || disabled}
         >
-          <Send size={20} color={!message.trim() || disabled ? '#9CA3AF' : '#3B82F6'} />
+          <Send size={20} color={!message.trim() || disabled ? colors.textTertiary : colors.primary} />
         </TouchableOpacity>
       </View>
     </View>
@@ -51,26 +56,21 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: 'white',
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    backgroundColor: '#F9FAFB',
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 12,
     minHeight: 48,
   },
   textInput: {
     flex: 1,
     fontSize: 16,
     lineHeight: 20,
-    color: '#1F2937',
     maxHeight: 100,
     paddingVertical: Platform.OS === 'ios' ? 8 : 4,
   },
